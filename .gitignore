@@ -1,0 +1,8 @@
+# old build output, replaced by site/
+dist/
+# local tooling and screenshots
+.claude/
+shots/
+__pycache__/
+node_modules/
+*.log

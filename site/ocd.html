@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>OCD: More Than Neatness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@800&family=Hanken+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rule:rgba(240,240,240,.2);
+  --ink:#edf0f1;
+  --paper:#15181c;
+  --muted:#545b63;
+  --a:#e5482e;
+  --b:#c23a22;
+  --rule:rgba(21,24,28,.18);
+  --display:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+  --dw:800;
+  --lh:.95;
+  --ls:-.035em;
+  --tt:none;
+  --h1:clamp(3.4rem,9vw,7.4rem);
+  --h2:clamp(2.6rem,5.4vw,4.6rem);
+  --h3:clamp(1.9rem,3.4vw,2.8rem);
+  --tk:1.5rem;
+  --rb:1.4rem;
+  --body:"Hanken Grotesk",system-ui,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);font-size:1.0625rem;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body.calm{scroll-behavior:auto}
+#field{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.no-gl #field,.no-gl .hud{display:none}
+.progress{position:fixed;left:0;top:0;height:2px;width:0;background:var(--b);z-index:60}
+
+.bar{position:fixed;left:0;right:0;top:0;z-index:50;height:3.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 clamp(1rem,4vw,3rem);background:var(--ink);border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}
+.brand{color:var(--paper);text-decoration:none;white-space:nowrap}
+.bar nav{display:flex;gap:clamp(.55rem,1.6vw,1.3rem);align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.bar a,.bar button{color:var(--muted);text-decoration:none;background:none;border:0;padding:.35rem 0;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;border-bottom:1px solid transparent}
+.bar a:hover,.bar button:hover{color:var(--paper)}
+.bar a.active{color:var(--paper);border-bottom-color:var(--b)}
+.bar button[aria-pressed="true"]{color:var(--b)}
+.bar .sep{width:1px;height:1rem;background:var(--rule)}
+
+main{position:relative;z-index:1}
+.chapter{min-height:100vh;padding:calc(3.25rem + 12vh) clamp(1.25rem,5vw,4rem) 14vh}
+.chapter.short{min-height:70vh}
+.col{width:min(35rem,100%)}
+.label{display:block;margin:0 0 1.1rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3{font-family:var(--display);font-weight:var(--dw);margin:0;line-height:var(--lh);letter-spacing:var(--ls);text-transform:var(--tt)}
+h1{font-size:var(--h1)}
+h2{font-size:var(--h2)}
+h3{font-size:var(--h3)}
+p{margin:1.1rem 0 0;max-width:62ch}
+.lead{font-size:1.2rem}
+.muted{color:var(--muted)}
+.takeaway{margin-top:1.6rem;padding-top:.9rem;border-top:1px solid var(--rule);font-family:var(--display);font-weight:var(--dw);font-size:var(--tk);line-height:1.15;text-transform:var(--tt)}
+.takeaway small{display:block;margin-bottom:.35rem;font-family:var(--mono);font-weight:400;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.block{margin-top:20vh}
+.hint{margin-top:1.4rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--muted)}
+.tags{margin:1.6rem 0 0;padding:0;list-style:none;font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tags li{display:inline}
+.tags li+li::before{content:"/";margin:0 .7rem;color:var(--rule)}
+.tags.hot li{cursor:default}
+.tags.hot li.on,.tags.hot li:hover{color:var(--paper)}
+.jump{margin-top:2rem;display:flex;gap:1.4rem;flex-wrap:wrap;font-family:var(--mono);font-size:.82rem}
+.jump a{color:var(--paper);text-underline-offset:.3em}
+.jump a:hover{color:var(--b)}
+
+.rows{margin:1.6rem 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.rows>li{border-bottom:1px solid var(--rule)}
+.rows .row,.rows button{display:grid;grid-template-columns:2rem 1fr;gap:.2rem 1rem;width:100%;padding:.95rem 0;background:none;border:0;color:inherit;font:inherit;text-align:left}
+.rows button{cursor:pointer}
+.rows button:hover b,.rows button:focus-visible b,.rows button.on b,.rows li.on b{color:var(--b)}
+.rows button:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+.rows .n{font-family:var(--mono);font-size:.82rem;color:var(--muted);padding-top:.35rem}
+.rows b{font-family:var(--display);font-weight:var(--dw);font-size:var(--rb);line-height:1.05;display:block;transition:color .2s;text-transform:var(--tt)}
+.rows span.t{color:var(--muted);display:block}
+.rows.plain .row,.rows.plain button{grid-template-columns:1fr}
+
+details.item,details.more{border-bottom:1px solid var(--rule)}
+details.item summary,details.more summary{list-style:none;cursor:pointer;padding:.95rem 0;display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline}
+details summary::-webkit-details-marker{display:none}
+details.item summary b{font-family:var(--display);font-weight:var(--dw);font-size:var(--rb);line-height:1.05;text-transform:var(--tt);transition:color .2s}
+details.item summary::after,details.more summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
+details[open] summary::after{content:"\2212"}
+details.item:hover summary b,details.item.on summary b,details[open] summary b{color:var(--b)}
+details.item summary:focus-visible,details.more summary:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+details.item .sub{display:block;color:var(--muted);font-size:.95rem}
+details .inside{padding:0 0 1.1rem;color:var(--muted)}
+details .inside p:first-child{margin-top:0}
+details .inside .tk{color:var(--paper);font-family:var(--display);font-weight:var(--dw);font-size:1.3rem;line-height:1.2;text-transform:var(--tt)}
+details.more{border-top:1px solid var(--rule);margin-top:1.6rem}
+details.more summary{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+ul.list-items{margin:1.6rem 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+ul.cols{display:grid;grid-template-columns:1fr 1fr;column-gap:2.2rem}
+ul.cols>li:nth-child(2){border-top:0}
+
+.seg{margin-top:1.6rem;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.seg .k{color:var(--muted);margin-right:.2rem}
+.seg button{background:none;border:0;border-bottom:1px solid transparent;padding:.3rem 0;color:var(--muted);font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer}
+.seg button:hover{color:var(--paper)}
+.seg button.on{color:var(--paper);border-bottom-color:var(--b)}
+.seg button:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+
+.btn{margin-top:1.6rem;padding:.8rem 1.3rem;background:var(--b);color:var(--ink);border:0;border-radius:0;font-family:var(--mono);font-size:.85rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.btn:hover{background:var(--paper)}
+.btn:focus-visible{outline:2px solid var(--paper);outline-offset:3px}
+.phase{margin-top:1.6rem;font-family:var(--display);font-weight:var(--dw);font-size:clamp(2rem,4.4vw,3.2rem);line-height:1.02;min-height:1.1em;text-transform:var(--tt)}
+.keys{margin:1.6rem 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.keys li{padding:.8rem 0;border-bottom:1px solid var(--rule);font-family:var(--display);font-weight:var(--dw);font-size:1.45rem;line-height:1.15;text-transform:var(--tt)}
+.lifelines{margin-top:1.6rem;border-top:1px solid var(--rule)}
+.lifelines li{padding:.8rem 0;border-bottom:1px solid var(--rule);list-style:none;font-family:var(--mono);font-size:.84rem;letter-spacing:.04em}
+.lifelines{padding-left:0}
+.lifelines b{color:var(--b);font-weight:500}
+.quote{margin:1.8rem 0 0;padding:0;font-family:var(--qfont,var(--display));font-size:clamp(1.35rem,2.1vw,1.75rem);line-height:1.32;letter-spacing:-.005em;max-width:34rem}
+.quote cite{display:block;margin-top:.8rem;font-family:var(--mono);font-style:normal;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.stat{display:grid;grid-template-columns:10rem 1fr;gap:1rem;align-items:baseline}
+.stat .v{font-family:var(--display);font-size:1.9rem;line-height:1}
+.fine{margin-top:2.4rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--muted)}
+
+.hud{position:fixed;right:clamp(1rem,3vw,2.5rem);bottom:1.4rem;z-index:5;width:min(22rem,40vw);padding:.7rem .8rem .8rem;background:var(--ink);border:1px solid var(--rule);font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;line-height:1.5;color:var(--muted);transition:opacity .2s;pointer-events:none}
+.hud.swap{opacity:0}
+.hud .k{display:block;text-transform:uppercase;letter-spacing:.14em;margin-bottom:.3rem}
+.hud b{display:block;color:var(--paper);font-weight:500;margin-bottom:.25rem}
+
+@media (max-width:899px){
+  #field{opacity:.45}
+  .chapter{padding-top:calc(3.25rem + 8vh)}
+  .bar .brand{display:none}
+  .bar nav{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;width:100%;scrollbar-width:none}
+  .bar nav::-webkit-scrollbar{display:none}
+  .bar nav a{white-space:nowrap}
+  ul.cols{grid-template-columns:1fr}
+  .bar .hide-s{display:none}
+  .hud{display:none}
+}
+.brand-sub{color:var(--muted);margin-left:.5rem;white-space:nowrap}
+.sitefoot{position:relative;z-index:1;padding:10vh clamp(1.25rem,5vw,4rem) 8vh;border-top:1px solid var(--rule);background:var(--ink,var(--bgnow))}
+.sf-label{display:block;margin-bottom:1rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sf-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule);max-width:58rem}
+.sf-list li{border-bottom:1px solid var(--rule)}
+.sf-list a{display:grid;grid-template-columns:minmax(10rem,16rem) 1fr;gap:.3rem 2rem;padding:1rem 0;color:inherit;text-decoration:none}
+.sf-list b{font-family:var(--display);font-size:1.5rem;line-height:1.1;letter-spacing:-.01em}
+.sf-list span{color:var(--muted)}
+.sf-list a:hover b,.sf-list a:focus-visible b{color:var(--accent,var(--b))}
+.sf-list a:focus-visible{outline:2px solid var(--accent,var(--b));outline-offset:2px}
+.sf-fine{margin-top:2rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;color:var(--muted)}
+.sf-fine a{color:inherit}
+@media (max-width:899px){.sf-list a{grid-template-columns:1fr}.brand-sub{display:none}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<canvas id="field" aria-hidden="true"></canvas>
+
+<header class="bar">
+  <a class="brand" href="index.html">Mind Field</a><span class="brand-sub">/ OCD</span>
+  <nav aria-label="Chapters">
+    <a href="#c0" data-i="0">Home</a>
+    <a href="#c1" data-i="1">Themes</a>
+    <a href="#c2" data-i="2">Cycle</a>
+    <a href="#c3" data-i="3">Signs</a>
+    <a href="#c4" data-i="4">ERP</a>
+    <a href="#c5" data-i="5">Myths</a>
+    <a href="#c6" data-i="6">Onward</a>
+    <span class="sep hide-s" aria-hidden="true"></span>
+    <button id="soundToggle" class="hide-s" type="button" aria-pressed="false">Sound off</button>
+    <button id="motionToggle" class="hide-s" type="button" aria-pressed="false">Calm motion</button>
+  </nav>
+</header>
+
+<main>
+  <section class="chapter" id="c0" data-scene="0">
+    <div class="col">
+      <span class="label">Understanding OCD</span>
+      <h1>OCD is more than neatness.</h1>
+      <p class="lead">Obsessions are intrusive, unwanted thoughts, images, or urges. Compulsions are behaviors or mental rituals done to reduce distress, get certainty, or prevent something feared.</p>
+      <ul class="tags hot">
+        <li data-hot="home:0" tabindex="0">Obsessions</li><li data-hot="home:1" tabindex="0">Compulsions</li><li data-hot="home:2" tabindex="0">Uncertainty</li><li data-hot="home:3" tabindex="0">Anxiety</li><li data-hot="home:4" tabindex="0">ERP</li>
+      </ul>
+      <div class="takeaway"><small>Takeaway</small>Compulsions can happen in the mind as well as in outward behavior.</div>
+      <details class="more"><summary>What OCD is</summary><div class="inside"><p>Obsessive-compulsive disorder involves obsessions and compulsions. Obsessions are intrusive, unwanted experiences that create distress or doubt. Compulsions can be visible actions, avoidance, reassurance seeking, or mental rituals such as reviewing, neutralizing, or silently repeating phrases.</p><p class="tk">Compulsions can happen in the mind as well as in outward behavior.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c1" data-scene="1">
+    <div class="col">
+      <span class="label">Chapter 1 of 5, Themes</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">What it is</span>
+      <h2>Not just habits.</h2>
+      <p>OCD is not simply liking things clean, organized, or "a certain way." It is a distressing pattern in which intrusive experiences trigger urges to check, avoid, repeat, neutralize, confess, or seek certainty.</p>
+      <ul class="rows plain">
+        <li data-hot="themes:0" tabindex="0"><div class="row"><span><b>An intrusive thought does not equal intent.</b></span></div></li>
+        <li data-hot="themes:1" tabindex="0"><div class="row"><span><b>Obsessions are unwanted and often ego-dystonic.</b></span></div></li>
+        <li data-hot="themes:2" tabindex="0"><div class="row"><span><b>Compulsions bring short-term relief, not long-term freedom.</b></span></div></li>
+        <li data-hot="themes:3" tabindex="0"><div class="row"><span><b>Mental rituals can be just as important as visible rituals.</b></span></div></li>
+        <li data-hot="themes:4" tabindex="0"><div class="row"><span><b>The theme can change, but the loop stays similar.</b></span></div></li>
+      </ul>
+      <div class="takeaway"><small>Takeaway</small>OCD is not only about being neat or clean.</div>
+      <details class="more"><summary>OCD themes</summary><div class="inside"><p>OCD can center on many different themes: contamination, checking, harm, symmetry and order, relationship OCD, scrupulosity, and mental rituals are only some examples. The core problem is not the topic itself, but the sticky doubt and compulsive attempts to get certainty or reduce distress.</p><p class="tk">OCD is not only about being neat or clean.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c2" data-scene="2">
+    <div class="col">
+      <span class="label">Chapter 2 of 5, The cycle</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">Reading the loop</span>
+      <h2>What keeps it going?</h2>
+      <ol class="rows">
+        <li><button type="button" data-hot="cycle:0"><span class="n">1</span><span><b>Intrusion</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="cycle:1"><span class="n">2</span><span><b>Doubt</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="cycle:2"><span class="n">3</span><span><b>Anxiety</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="cycle:3"><span class="n">4</span><span><b>Compulsion</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="cycle:4"><span class="n">5</span><span><b>Relief</b><span class="t"></span></span></button></li>
+      </ol>
+      <p>Examples of compulsions can include checking, washing, repeating, asking for reassurance, avoiding triggers, confessing, mentally reviewing, counting, or trying to cancel out a thought with another thought.</p>
+      <ul class="rows plain">
+        <li data-hot="cycle:mind" tabindex="0"><div class="row"><span><b>Mind</b><span class="t">Sticky doubt, fear of uncertainty, mental reviewing, catastrophic interpretations.</span></span></div></li>
+        <li data-hot="cycle:behavior" tabindex="0"><div class="row"><span><b>Behavior</b><span class="t">Checking, avoidance, reassurance, repeating, neutralizing, confession.</span></span></div></li>
+        <li data-hot="cycle:4" tabindex="0"><div class="row"><span><b>Relief</b><span class="t">Distress drops for a moment, which makes the ritual feel necessary.</span></span></div></li>
+        <li data-hot="cycle:cost" tabindex="0"><div class="row"><span><b>Cost</b><span class="t">Time loss, narrowed routines, more fear, and more dependence on rituals.</span></span></div></li>
+      </ul>
+      <div class="takeaway"><small>Takeaway</small>Short-term relief can reinforce the cycle.</div>
+      <details class="more"><summary>The OCD cycle</summary><div class="inside"><p>A trigger or intrusive thought can spark doubt and anxiety. A compulsion, avoidance strategy, or reassurance-seeking response may then lower distress for a moment. That temporary relief teaches the brain that the ritual was necessary, which helps keep the cycle going.</p><p class="tk">Short-term relief can reinforce the cycle.</p></div></details>
+      <details class="more"><summary>Why the cycle feels convincing</summary><div class="inside"><p>Compulsions can feel logical because they reduce discomfort right away. But they also keep uncertainty feeling dangerous. Over time, rituals, avoidance, and reassurance seeking can spread into more parts of life and become more time-consuming.</p><p class="tk">OCD often grows through reinforcement, not because the feared thought was true.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c3" data-scene="3">
+    <div class="col">
+      <span class="label">Chapter 3 of 5, Common signs</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">What to notice</span>
+      <h2>More than visible rituals.</h2>
+      <p class="lead">Some of the loudest compulsions happen silently.</p>
+      <ul class="rows plain">
+        <li data-hot="signs:0" tabindex="0"><div class="row"><span><b>Time-consuming rituals or mental review.</b></span></div></li>
+        <li data-hot="signs:1" tabindex="0"><div class="row"><span><b>Asking others repeatedly for certainty or reassurance.</b></span></div></li>
+        <li data-hot="signs:2" tabindex="0"><div class="row"><span><b>Avoiding people, places, topics, or objects that trigger obsessional fear.</b></span></div></li>
+        <li data-hot="signs:3" tabindex="0"><div class="row"><span><b>Repeating actions until they feel complete or “just right.”</b></span></div></li>
+        <li data-hot="signs:4" tabindex="0"><div class="row"><span><b>Difficulty tolerating uncertainty, doubt, or “maybe.”</b></span></div></li>
+      </ul>
+      <div class="takeaway"><small>Takeaway</small>Distress plus repetitive attempts to get certainty are important clues.</div>
+      <details class="more"><summary>Common signs of OCD</summary><div class="inside"><p>OCD can become time-consuming and mentally exhausting. Common signs can include mental checking, repeating or redoing, reassurance seeking, avoidance, distress, and chronic uncertainty. The exact content of the obsession may vary, but the pattern is what matters most.</p><p class="tk">OCD is often about the process, not just the topic.</p></div></details>
+      <details class="more"><summary>How OCD may show up</summary><div class="inside"><p>People with OCD may spend significant time on rituals or on mentally reviewing and neutralizing thoughts. They may avoid situations that trigger uncertainty, ask others for reassurance, or redo actions until they feel ‘just right.’ OCD often creates distress out of proportion to the person’s goals or values.</p><p class="tk">Distress plus repetitive attempts to get certainty are important clues.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c4" data-scene="4">
+    <div class="col">
+      <span class="label">Chapter 4 of 5, ERP and recovery</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">Support and treatment</span>
+      <h2>Building recovery.</h2>
+      <ol class="rows">
+        <li><button type="button" data-hot="erp:0"><span class="n">1</span><span><b>Exposure</b><span class="t">Approach feared uncertainty gradually and intentionally.</span></span></button></li>
+        <li><button type="button" data-hot="erp:1"><span class="n">2</span><span><b>Response prevention</b><span class="t">Reduce or delay rituals instead of obeying the urge.</span></span></button></li>
+        <li><button type="button" data-hot="erp:2"><span class="n">3</span><span><b>Uncertainty tolerance</b><span class="t">Practice making room for “maybe” without fixing it.</span></span></button></li>
+        <li><button type="button" data-hot="erp:3"><span class="n">4</span><span><b>Support</b><span class="t">Therapy, education, medication when appropriate, and trusted people can help.</span></span></button></li>
+      </ol>
+      <p>If OCD symptoms are consuming time, causing major distress, or narrowing daily life, professional support is worth considering. If someone is in immediate danger or unable to stay safe, emergency support should come first.</p>
+      <div class="takeaway"><small>Takeaway</small>Recovery is often about building tolerance for uncertainty while reducing rituals.</div>
+      <details class="more"><summary>ERP and recovery</summary><div class="inside"><p>Exposure and Response Prevention, often called ERP, is a core treatment approach for OCD. It helps people practice facing uncertainty and reducing rituals so the brain can learn that feared outcomes are not made safer by compulsions. Recovery is usually gradual and imperfect, but it is possible.</p><p class="tk">Recovery is often about building tolerance for uncertainty while reducing rituals.</p></div></details>
+      <details class="more"><summary>What helps</summary><div class="inside"><p>Treatment can include ERP, other forms of therapy, medication for some people, psychoeducation, and support from trusted others. The goal is not perfect certainty or never having intrusive thoughts; it is learning to respond differently so OCD takes up less space in life.</p><p class="tk">Progress, not perfection, is a useful recovery mindset.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c5" data-scene="5">
+    <div class="col">
+      <span class="label">Chapter 5 of 5, Myths and realities</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">Myths and realities</span>
+      <h2>Beyond stereotypes.</h2>
+      <ul class="rows plain">
+        <li data-hot="myth:0" tabindex="0"><div class="row"><span><span class="label" style="margin:0 0 .3rem">Myth</span><b>“OCD just means being clean or organized.”</b><span class="label" style="margin:.9rem 0 .3rem">Reality</span><span class="t" style="color:var(--paper)">OCD can involve contamination fears, harm themes, checking, mental rituals, scrupulosity, relationship OCD, symmetry concerns, and more.</span></span></div></li>
+        <li data-hot="myth:1" tabindex="0"><div class="row"><span><span class="label" style="margin:0 0 .3rem">Myth</span><b>“If the thought is upsetting, it must mean something important.”</b><span class="label" style="margin:.9rem 0 .3rem">Reality</span><span class="t" style="color:var(--paper)">Intrusive thoughts are not the same as intent, desire, or character.</span></span></div></li>
+        <li data-hot="myth:2" tabindex="0"><div class="row"><span><span class="label" style="margin:0 0 .3rem">Myth</span><b>“Reassurance helps solve OCD.”</b><span class="label" style="margin:.9rem 0 .3rem">Reality</span><span class="t" style="color:var(--paper)">Reassurance often lowers distress briefly but can strengthen the cycle over time.</span></span></div></li>
+        <li data-hot="myth:3" tabindex="0"><div class="row"><span><span class="label" style="margin:0 0 .3rem">Myth</span><b>“Recovery means never feeling uncertainty.”</b><span class="label" style="margin:.9rem 0 .3rem">Reality</span><span class="t" style="color:var(--paper)">Recovery often means learning to live with uncertainty without obeying rituals.</span></span></div></li>
+      </ul>
+      <div class="takeaway"><small>Takeaway</small>OCD is more than stereotypes, and effective treatment is available.</div>
+      <details class="more"><summary>OCD myths and realities</summary><div class="inside"><p>OCD is often misunderstood. It is not only about neatness, and it is not solved by reassurance or by waiting to feel certain. Many people also benefit from Exposure and Response Prevention (ERP), support, and sometimes medication.</p><p class="tk">OCD is more than stereotypes, and effective treatment is available.</p></div></details>
+      <details class="more"><summary>Correcting common myths</summary><div class="inside"><p>Common myths can make OCD harder to recognize. OCD is not just liking order. Compulsions can be mental, invisible, or based around reassurance and avoidance. Treatment usually focuses on changing the response to obsessional fear, not proving perfect certainty.</p><p class="tk">Correct language and accurate teaching can reduce shame and improve recognition.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c6" data-scene="6">
+    <div class="col">
+      <span class="label">Final note</span>
+      <h2>A life larger than OCD.</h2>
+      <p class="lead">Intrusive thoughts can be loud. Doubt can feel convincing. Recovery does not mean never feeling uncertainty again. It means building a different response so OCD is no longer in charge of the day.</p>
+      <div class="takeaway"><small>Takeaway</small>Progress, not perfection.</div>
+      <details class="more"><summary>Closing idea</summary><div class="inside"><p>OCD often tries to promise certainty, relief, or safety through rituals. Recovery usually involves learning that certainty is not the real solution. A larger life becomes possible when intrusive experiences no longer control the response.</p><p class="tk">You do not need perfect certainty to move forward.</p></div></details>
+      <div class="block" style="margin-top:12vh">
+        <span class="label">Key ideas</span>
+      <ul class="keys">
+        <li>OCD is more than neatness.</li>
+        <li>Obsessions are intrusive and unwanted.</li>
+        <li>Compulsions can be behavioral or mental.</li>
+        <li>Short-term relief can reinforce the loop.</li>
+        <li>ERP helps people face uncertainty and reduce rituals.</li>
+        <li>OCD is more than stereotypes.</li>
+        <li>Progress, not perfection.</li>
+      </ul>
+        <p class="fine">This page is educational and not a diagnosis tool. OCD assessment should consider obsessions, compulsions, distress, time consumed, avoidance, and impairment together. Effective treatment may include ERP, other therapy, and medication for some people.</p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="sitefoot">
+  <span class="sf-label">More topics</span>
+  <ul class="sf-list">
+    <li><a href="anxiety.html"><b>Anxiety</b><span>When the alarm gets loud. A protective signal that can become too sensitive, and how to slow it.</span></a></li>
+    <li><a href="ptsd.html"><b>PTSD</b><span>A trauma response pattern. Intrusions, avoidance, hyperarousal, and widening the present.</span></a></li>
+    <li><a href="bipolar.html"><b>Bipolar I and II</b><span>When the frequency shifts. Mania, hypomania, depression, mixed states, and the circadian anchor.</span></a></li>
+    <li><a href="psychosis.html"><b>Psychosis</b><span>When reality breaches. Salience, symptoms, how to support someone, and grounding.</span></a></li>
+    <li><a href="eating.html"><b>Eating disorders</b><span>More than food. Patterns, the cycle, warning signs, and recovery.</span></a></li>
+  </ul>
+  <p class="sf-fine"><a href="index.html">All topics</a> · If you are in immediate danger, contact local emergency services. In the USA and Canada, call or text 988.</p>
+</footer>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+const SITE = {"count":12000,"size":2.2,"seed":41,"palette":{"ramp":["#e5482e","#5d646c","#15181c"],"hot":"#e5482e","line":"#15181c"},"fontLoad":"800 100px \"Schibsted Grotesk\"","displayFont":"\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif","pacers":null};
+/* Shared engine. Inlined into each page by build.mjs.
+   Globals provided by the build: SITE (json), THREE (module), makeScenes (fn from the site's scenes.js). */
+
+async function boot(THREE, SITE, makeScenes) {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+  const sections = $$(".chapter");
+  const navLinks = $$(".bar nav a[data-i]");
+
+  /* in-page links scroll with script, so they also work where the page is loaded without a real URL */
+  document.addEventListener("click", e => {
+    const a = e.target.closest('a[href^="#"]'); if (!a) return;
+    const el = document.getElementById(a.getAttribute("href").slice(1)); if (!el) return;
+    e.preventDefault(); el.scrollIntoView({ behavior: ctx.calm ? "auto" : "smooth" });
+  });
+
+  /* ---------- shared state ---------- */
+  const ctx = {
+    t: 0, p: {}, hotKey: "", hotAmt: 0, calm: matchMedia("(prefers-reduced-motion: reduce)").matches,
+    pace: { mode: "", step: -1, running: false, scale: 1, target: 1, k: 0 }
+  };
+
+  /* ---------- toggles ---------- */
+  const motionToggle = $("#motionToggle");
+  function syncMotion() {
+    motionToggle.setAttribute("aria-pressed", String(ctx.calm));
+    motionToggle.textContent = ctx.calm ? "Calm motion on" : "Calm motion";
+    document.body.classList.toggle("calm", ctx.calm);
+  }
+  motionToggle.addEventListener("click", () => { ctx.calm = !ctx.calm; syncMotion(); blip(520, .02, .04, "triangle"); });
+  syncMotion();
+
+  let soundOn = false, audioCtx = null;
+  const soundToggle = $("#soundToggle");
+  const ac = () => { if (!audioCtx) { const A = window.AudioContext || window.webkitAudioContext; if (A) audioCtx = new A(); } return audioCtx; };
+  function blip(freq = 520, attack = .01, release = .05, type = "sine") {
+    if (!soundOn) return;
+    const c = ac(); if (!c) return;
+    const now = c.currentTime, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, now);
+    g.gain.setValueAtTime(.0001, now);
+    g.gain.exponentialRampToValueAtTime(.05, now + attack);
+    g.gain.exponentialRampToValueAtTime(.0001, now + attack + release);
+    o.connect(g).connect(c.destination); o.start(now); o.stop(now + attack + release + .02);
+  }
+  soundToggle.addEventListener("click", async () => {
+    soundOn = !soundOn;
+    soundToggle.setAttribute("aria-pressed", String(soundOn));
+    soundToggle.textContent = soundOn ? "Sound on" : "Sound off";
+    const c = ac(); if (c && c.state === "suspended") await c.resume();
+    blip(soundOn ? 720 : 360, .02, .06, "triangle");
+  });
+
+  /* ---------- params (segmented controls) ---------- */
+  $$("[data-param]").forEach(btn => {
+    const key = btn.dataset.param, val = btn.dataset.value;
+    if (btn.classList.contains("on")) ctx.p[key] = val;
+    btn.addEventListener("click", () => {
+      ctx.p[key] = val;
+      $$(`[data-param="${key}"]`).forEach(b => { const on = b === btn; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+      blip(580, .01, .04, "triangle");
+    });
+  });
+
+  /* ---------- hover / focus targets ---------- */
+  let hotTarget = 0;
+  $$("[data-hot]").forEach(el => {
+    const key = el.dataset.hot;
+    const on = () => { ctx.hotKey = key; hotTarget = 1; el.classList.add("on"); blip(520 + (key.length % 7) * 30, .01, .03, "triangle"); };
+    const off = () => { hotTarget = 0; el.classList.remove("on"); };
+    el.addEventListener("pointerenter", on);
+    el.addEventListener("focusin", on);
+    el.addEventListener("pointerleave", off);
+    el.addEventListener("focusout", off);
+  });
+
+  /* ---------- pacer ---------- */
+  const pc = SITE.pacers;
+  if (pc) {
+    const btn = $("#paceBtn"), phaseEl = $("#phase"), textEl = $("#paceText");
+    let timer = null, idx = 0;
+    const mode = () => pc.modes.find(m => m.id === ctx.pace.mode);
+    ctx.pace.mode = pc.modes[0].id;
+    function reset() {
+      ctx.pace.running = false; ctx.pace.step = -1; ctx.pace.target = 1; clearTimeout(timer);
+      const m = mode(); btn.textContent = m.button; phaseEl.textContent = "Ready"; textEl.textContent = m.idle;
+    }
+    function step() {
+      const m = mode(), p = m.phases[idx];
+      ctx.pace.step = idx; ctx.pace.target = p.scale;
+      phaseEl.textContent = p.name; textEl.textContent = p.text; blip(p.f, .02, .08, "sine");
+      timer = setTimeout(() => { idx = (idx + 1) % m.phases.length; if (ctx.pace.running) step(); }, p.ms);
+    }
+    btn.addEventListener("click", () => {
+      ctx.pace.running = !ctx.pace.running; clearTimeout(timer);
+      if (ctx.pace.running) { btn.textContent = "Stop"; idx = 0; step(); } else reset();
+    });
+    $$("[data-pmode]").forEach(b => b.addEventListener("click", () => {
+      ctx.pace.mode = b.dataset.pmode;
+      $$("[data-pmode]").forEach(x => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); });
+      reset(); blip(580, .01, .04, "triangle");
+    }));
+    reset();
+  }
+
+  /* ---------- scroll ---------- */
+  const progress = $("#progress");
+  const updateProgress = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progress.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
+  };
+  addEventListener("scroll", updateProgress, { passive: true }); updateProgress();
+
+  function targetState() {
+    const vc = scrollY + innerHeight * .5;
+    const mids = sections.map(s => s.offsetTop + s.offsetHeight / 2);
+    if (vc <= mids[0]) return 0;
+    if (vc >= mids[mids.length - 1]) return sections.length - 1;
+    let i = 0;
+    while (i < mids.length - 1 && vc > mids[i + 1]) i++;
+    const f = (vc - mids[i]) / (mids[i + 1] - mids[i]);
+    const e = clamp((f - .3) / .4);
+    return i + e * e * (3 - 2 * e);
+  }
+
+  const hudName = $("#hudName"), hudText = $("#hudText"), hud = $(".hud");
+  let hudIdx = -1, scenes = [];
+  function syncNav(tgt) {
+    const ni = clamp(Math.round(tgt), 0, sections.length - 1);
+    navLinks.forEach(a => a.classList.toggle("active", Number(a.dataset.i) === ni));
+    if (hud && ni !== hudIdx && scenes[ni]) {
+      hudIdx = ni; hud.classList.add("swap");
+      setTimeout(() => { hudName.textContent = scenes[ni].name; hudText.textContent = scenes[ni].caption; hud.classList.remove("swap"); }, 180);
+    }
+  }
+
+  /* ---------- WebGL ---------- */
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: $("#field"), antialias: true, alpha: true }); }
+  catch (e) { document.body.classList.add("no-gl"); }
+  if (!renderer) {
+    addEventListener("scroll", () => syncNav(targetState()), { passive: true });
+    return;
+  }
+
+  try { await Promise.race([document.fonts.load(SITE.fontLoad), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
+
+  const N = matchMedia("(max-width:899px)").matches ? Math.round((SITE.count || 8000) * .6) : (SITE.count || 8000);
+  const R0 = new Float32Array(N), R1 = new Float32Array(N), R2 = new Float32Array(N), R3 = new Float32Array(N);
+  const G0 = new Float32Array(N), G1 = new Float32Array(N), G2 = new Float32Array(N);
+  const FX = new Float32Array(N), FY = new Float32Array(N), FZ = new Float32Array(N);
+  let seed = SITE.seed || 1337;
+  const rng = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const gauss = () => (rng() + rng() + rng() + rng() - 2) * 1.2;
+  const GA = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) {
+    R0[i] = rng(); R1[i] = rng(); R2[i] = rng(); R3[i] = rng();
+    G0[i] = gauss(); G1[i] = gauss(); G2[i] = gauss();
+    const y = 1 - (i + .5) / N * 2, r = Math.sqrt(1 - y * y), a = i * GA;
+    FX[i] = Math.cos(a) * r; FY[i] = y; FZ[i] = Math.sin(a) * r;
+  }
+
+  /* text -> point targets, sampled from real glyph pixels */
+  const textCache = {};
+  function text(str, { width = 7, px = 260, weight = 800, stride = 3 } = {}) {
+    const key = str + width + px;
+    if (textCache[key]) return textCache[key];
+    const c = document.createElement("canvas"), g = c.getContext("2d");
+    g.font = `${weight} ${px}px ${SITE.displayFont}`;
+    const w = Math.ceil(g.measureText(str).width) + 40, h = Math.ceil(px * 1.3);
+    c.width = w; c.height = h;
+    g.font = `${weight} ${px}px ${SITE.displayFont}`; g.textBaseline = "middle"; g.fillStyle = "#fff";
+    g.fillText(str, 20, h / 2);
+    const d = g.getImageData(0, 0, w, h).data, xs = [], ys = [];
+    for (let y = 0; y < h; y += stride) for (let x = 0; x < w; x += stride) if (d[(y * w + x) * 4 + 3] > 128) { xs.push(x); ys.push(y); }
+    const k = width / w, out = new Float32Array(xs.length * 2);
+    for (let i = 0; i < xs.length; i++) { out[i * 2] = (xs[i] - w / 2) * k; out[i * 2 + 1] = -(ys[i] - h / 2) * k; }
+    return (textCache[key] = out);
+  }
+
+  const U = { N, THREE, ctx, R0, R1, R2, R3, G0, G1, G2, FX, FY, FZ, rng, gauss, clamp, lerp, smooth, text, TAU: Math.PI * 2 };
+  scenes = makeScenes(U);
+  if (scenes.length !== sections.length) console.warn("scene/chapter count mismatch", scenes.length, sections.length);
+  scenes.forEach(s => s.init && s.init(U));
+
+  /* palette */
+  const hex = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
+  const ramp = SITE.palette.ramp.map(hex), hotCol = hex(SITE.palette.hot);
+  const rgb = [0, 0, 0];
+  function pal(c) {
+    const x = clamp(c) * (ramp.length - 1), i = Math.min(ramp.length - 2, Math.floor(x)), f = x - i, a = ramp[i], b = ramp[i + 1];
+    rgb[0] = a[0] + (b[0] - a[0]) * f; rgb[1] = a[1] + (b[1] - a[1]) * f; rgb[2] = a[2] + (b[2] - a[2]) * f;
+  }
+
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
+  camera.position.set(0, 0, 12.4);
+  const group = new THREE.Group(); scene.add(group);
+
+  const geo = new THREE.BufferGeometry();
+  const posA = new Float32Array(N * 3), colA = new Float32Array(N * 3), sizA = new Float32Array(N), alpA = new Float32Array(N);
+  geo.setAttribute("position", new THREE.BufferAttribute(posA, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute("aCol", new THREE.BufferAttribute(colA, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute("aSize", new THREE.BufferAttribute(sizA, 1).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute("aAlpha", new THREE.BufferAttribute(alpA, 1).setUsage(THREE.DynamicDrawUsage));
+  const uni = { uPR: { value: renderer.getPixelRatio() } };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: uni, transparent: true, depthWrite: false,
+    vertexShader: `
+      attribute vec3 aCol; attribute float aSize; attribute float aAlpha;
+      uniform float uPR; varying vec3 vCol; varying float vA;
+      void main(){
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = max(1.0, aSize * uPR * (10.0 / -mv.z));
+        float depth = clamp((-mv.z - 7.0) / 9.0, 0.0, 1.0);
+        vCol = aCol; vA = aAlpha * (1.0 - 0.55 * depth);
+      }`,
+    fragmentShader: `
+      varying vec3 vCol; varying float vA;
+      void main(){
+        float d = length(gl_PointCoord - 0.5);
+        if (d > 0.5) discard;
+        gl_FragColor = vec4(vCol, vA * (1.0 - smoothstep(0.38, 0.5, d)));
+      }`
+  });
+  const points = new THREE.Points(geo, mat); points.frustumCulled = false; group.add(points);
+
+  /* optional hairline layer per scene: scene.lines(buf, t, ctx) writes segment endpoints and returns the count */
+  scenes.forEach(s => {
+    if (!s.lines) return;
+    s._la = new Float32Array((s.lineCap || 1000) * 6);
+    s._lg = new THREE.BufferGeometry();
+    s._lg.setAttribute("position", new THREE.BufferAttribute(s._la, 3).setUsage(THREE.DynamicDrawUsage));
+    s._lo = new THREE.LineSegments(s._lg, new THREE.LineBasicMaterial({ color: s.lineColor || SITE.palette.line || "#888888", transparent: true, opacity: 0, depthWrite: false }));
+    s._lo.frustumCulled = false; s._lo.visible = false; group.add(s._lo);
+  });
+  function drawLines(S, w) {
+    if (!S._lo || w < .01) return;
+    const n = Math.min(S.lineCap || 1000, S.lines(S._la, ctx.t, ctx) | 0);
+    S._lg.setDrawRange(0, n * 2); S._lg.attributes.position.needsUpdate = true;
+    S._lo.material.opacity = w * (S.lineOpacity ?? .55); S._lo.visible = n > 0;
+  }
+
+  let baseX = 0, baseS = 1, halfW = 1, halfH = 1;
+  function resize() {
+    const w = innerWidth, h = innerHeight, a = w / h;
+    renderer.setSize(w, h, false);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); uni.uPR.value = renderer.getPixelRatio();
+    camera.aspect = a; camera.updateProjectionMatrix();
+    baseS = Math.min(1, Math.max(.5, a * .85));
+    baseX = a > 1.1 ? 3.3 * baseS : 0;
+    group.scale.setScalar(baseS);
+    halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z; halfW = halfH * a;
+  }
+  addEventListener("resize", resize); resize();
+
+  let pnx = 0, pny = 0, px = 0, py = 0, pActive = 0, pTarget = 0;
+  addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse") return;
+    pnx = e.clientX / innerWidth * 2 - 1; pny = -(e.clientY / innerHeight * 2 - 1); pTarget = 1;
+  });
+  addEventListener("pointerleave", () => { pTarget = 0; });
+  document.addEventListener("pointerleave", () => { pTarget = 0; });
+
+  const oa = { x: 0, y: 0, z: 0, c: .5, s: 1, a: 1, h: 0 }, ob = { x: 0, y: 0, z: 0, c: .5, s: 1, a: 1, h: 0 };
+  const BASE = SITE.size || 2.7;
+  let state = targetState(), motion = 1, t = 0, spin = 0, vrx = 0, vry = 0, vsp = .1, tx = 0, ty = 0;
+  const clock = new THREE.Clock();
+  const wrap = a => { a = (a + Math.PI) % (Math.PI * 2); if (a < 0) a += Math.PI * 2; return a - Math.PI; };
+  const reset = o => { o.x = o.y = o.z = 0; o.c = .5; o.s = 1; o.a = 1; o.h = 0; };
+
+  function frame() {
+    const dt = Math.min(clock.getDelta(), .05);
+    const tgt = targetState();
+    state += (tgt - state) * (1 - Math.exp(-dt * (ctx.calm ? 3 : 5)));
+    motion += ((ctx.calm ? .25 : 1) - motion) * (1 - Math.exp(-dt * 3));
+    t += dt * motion; ctx.t = t;
+    ctx.hotAmt += (hotTarget - ctx.hotAmt) * (1 - Math.exp(-dt * 9));
+    ctx.pace.scale += (ctx.pace.target - ctx.pace.scale) * (1 - Math.exp(-dt * 1.4));
+    ctx.pace.k += ((ctx.pace.running ? 1 : 0) - ctx.pace.k) * (1 - Math.exp(-dt * 3));
+    pActive += (pTarget - pActive) * (1 - Math.exp(-dt * 4));
+    px += (pnx - px) * .25; py += (pny - py) * .25;
+
+    const s = clamp(state, 0, scenes.length - 1), i0 = Math.floor(s), i1 = Math.min(i0 + 1, scenes.length - 1);
+    let f = s - i0; f = f * f * (3 - 2 * f); if (i0 === i1) f = 0;
+    const A = scenes[i0], B = scenes[i1];
+    A.frame && A.frame(t, ctx, dt);
+    if (f > .0005 && B !== A) B.frame && B.frame(t, ctx, dt);
+
+    const va = A.view || {}, vb = B.view || {};
+    const tvx = lerp(va.rx || 0, vb.rx || 0, f), tvy = lerp(va.ry || 0, vb.ry || 0, f), tsp = lerp(va.spin ?? .1, vb.spin ?? .1, f);
+    vrx += (tvx - vrx) * (1 - Math.exp(-dt * 3)); vry += (tvy - vry) * (1 - Math.exp(-dt * 3)); vsp += (tsp - vsp) * (1 - Math.exp(-dt * 3));
+    spin += dt * vsp * motion;
+
+    const doPush = !ctx.calm && pActive > .02;
+    const lx = (px * halfW - baseX) / baseS, ly = (py * halfH) / baseS, R = 1.25, R2q = R * R, push = .5 * pActive;
+    const mixing = f > .0005 && B !== A;
+
+    for (let i = 0; i < N; i++) {
+      reset(oa); A.at(i, oa);
+      let x = oa.x, y = oa.y, z = oa.z, c = oa.c, sz = oa.s, al = oa.a, h = oa.h;
+      if (mixing) {
+        reset(ob); B.at(i, ob);
+        x += (ob.x - x) * f; y += (ob.y - y) * f; z += (ob.z - z) * f; c += (ob.c - c) * f;
+        sz += (ob.s - sz) * f; al += (ob.a - al) * f; h += (ob.h - h) * f;
+      }
+      if (doPush) {
+        const dx = x - lx, dy = y - ly, d2 = dx * dx + dy * dy;
+        if (d2 < R2q && d2 > 1e-6) { const d = Math.sqrt(d2), k = (1 - d / R) * (1 - d / R) * push; x += dx / d * k; y += dy / d * k; }
+      }
+      const o3 = i * 3; posA[o3] = x; posA[o3 + 1] = y; posA[o3 + 2] = z;
+      pal(c); const hh = clamp(h);
+      colA[o3] = rgb[0] + (hotCol[0] - rgb[0]) * hh; colA[o3 + 1] = rgb[1] + (hotCol[1] - rgb[1]) * hh; colA[o3 + 2] = rgb[2] + (hotCol[2] - rgb[2]) * hh;
+      sizA[i] = BASE * sz * (1 + hh * .9); alpA[i] = clamp(al + hh * .35);
+    }
+    geo.attributes.position.needsUpdate = true; geo.attributes.aCol.needsUpdate = true;
+    geo.attributes.aSize.needsUpdate = true; geo.attributes.aAlpha.needsUpdate = true;
+    for (const S of scenes) if (S._lo) S._lo.visible = false;
+    drawLines(A, mixing ? 1 - f : 1); if (mixing) drawLines(B, f);
+
+    tx += ((ctx.calm ? 0 : pny * .1) - tx) * .05; ty += ((ctx.calm ? 0 : pnx * .16) - ty) * .05;
+    group.rotation.x = vrx + tx; group.rotation.y = vry + (vsp > .001 ? wrap(spin) * .35 : 0) + ty;
+    group.position.x = baseX;
+
+    syncNav(tgt);
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  syncNav(targetState());
+  requestAnimationFrame(frame);
+}
+
+const makeScenes = (U) => {
+  const { N, R0, R1, R2, R3, G0, G1, G2, FX, FY, FZ, TAU, clamp, lerp, smooth, ctx } = U;
+  const sin = Math.sin, cos = Math.cos, PI = Math.PI, exp = Math.exp, sqrt = Math.sqrt;
+  const hk = pfx => (ctx.hotAmt > .04 && ctx.hotKey.startsWith(pfx)) ? ctx.hotKey.slice(pfx.length) : null;
+  const ease = (cur, tgt, dt, rate = 4) => cur + (tgt - cur) * (1 - Math.exp(-dt * rate));
+  const fr = x => x - Math.floor(x);
+  const seg = (b, n, x1, y1, z1, x2, y2, z2) => { const o = n * 6; b[o] = x1; b[o + 1] = y1; b[o + 2] = z1; b[o + 3] = x2; b[o + 4] = y2; b[o + 5] = z2; return n + 1; };
+
+  /* 0. an intrusion moving through an ordered lattice */
+  const GW = 64, GH = 44, SP = .115;
+  const s0 = {
+    view: { rx: -.42, spin: 0 },
+    lineCap: 420, lineOpacity: .75, lineColor: "#e5482e",
+    amp: .22, fq: 6, jit: 0, stiff: 0, allow: 0, speed: 1,
+    init() { this.hist = new Float32Array(420 * 2); this.hn = 0; this.ph = 0; },
+    frame(t, c, dt) {
+      const h = hk("home:");
+      this.amp = ease(this.amp, h === "0" ? .48 : h === "4" ? 0 : h === "1" ? .06 : .22, dt, 3);
+      this.fq = ease(this.fq, h === "3" ? 11 : 6, dt, 3);
+      this.jit = ease(this.jit, h === "2" ? 1 : 0, dt, 4);
+      this.allow = ease(this.allow, h === "4" ? 1 : 0, dt, 2);
+      this.speed = ease(this.speed, h === "1" ? 3.2 : h === "4" ? .35 : 1, dt, 3);
+      this.ph += dt * this.speed * (c.calm ? .25 : 1); this.t = t;
+      const p = this.ph;
+      this.px = 2.3 * sin(p * .31) + .5 * sin(p * 1.13); this.py = 1.5 * sin(p * .47 + 1) + .3 * cos(p * .9);
+      const k = this.hn % 420; this.hist[k * 2] = this.px; this.hist[k * 2 + 1] = this.py; this.hn++;
+    },
+    at(i, o) {
+      const t = this.t;
+      if (R3[i] > .986) {
+        o.x = this.px + G0[i] * .07; o.y = this.py + G1[i] * .07; o.z = .08 + G2[i] * .03; o.c = 0; o.s = 1.5; return;
+      }
+      const g = i % (GW * GH), gx = (g % GW - GW / 2 + .5) * SP, gy = (Math.floor(g / GW) - GH / 2 + .5) * SP;
+      const dx = gx - this.px, dy = gy - this.py, d = sqrt(dx * dx + dy * dy) + 1e-4;
+      const w = this.amp * exp(-d * 1.25) * sin(d * this.fq - t * 4);
+      let x = gx + dx / d * w * .35 + G0[i] * .01, y = gy + dy / d * w * .35 + G1[i] * .01;
+      if (this.jit > .01) { const f = sin(t * 7 + R1[i] * 50) > 0 ? 1 : -1; x += f * this.jit * .03 * R2[i]; }
+      o.x = x; o.y = y; o.z = w * .9;
+      o.c = clamp(1 - Math.abs(w) * 1.6 * (1 - this.allow));
+      o.s = .85 + Math.abs(w) * 1.3; o.a = .9;
+    },
+    lines(b) {
+      let n = 0; const L = Math.min(this.hn, 420), fade = 1 - this.allow * .8;
+      if (fade < .05) return 0;
+      for (let j = 1; j < L; j++) {
+        const a = (this.hn - j) % 420, p = (this.hn - j - 1) % 420;
+        if (j % 1 === 0) n = seg(b, n, this.hist[a * 2], this.hist[a * 2 + 1], .08, this.hist[p * 2], this.hist[p * 2 + 1], .08);
+      }
+      return n;
+    }
+  };
+
+  /* 1. seven themes, one loop shape */
+  const RING = [[0, 0], [1.45, .85], [1.45, -.85], [0, -1.7], [-1.45, -.85], [-1.45, .85], [0, 1.7]];
+  const wob = (k, a) => 1 + .14 * sin(a * (k + 2) + k) * (k % 2 ? 1 : -1);
+  const s1 = {
+    view: { rx: 0, spin: 0 },
+    lineCap: 7 * 120, lineOpacity: .5,
+    pen: 0,
+    frame(t, c, dt) { this.pen = ease(this.pen, hk("themes:") !== null ? 1 : 0, dt, 5); this.t = t; },
+    at(i, o) {
+      const t = this.t, k = i % 7, r0 = RING[k];
+      if (R3[i] < .12) {
+        const a = t * (.8 + k * .07) + G0[i] * .12, r = .58 * wob(k, a) + G1[i] * .02;
+        o.x = r0[0] + cos(a) * r; o.y = r0[1] + sin(a) * r; o.z = .05; o.c = 0; o.s = 1.25 + this.pen * .5; return;
+      }
+      const a = R1[i] * TAU, r = .58 * wob(k, a) + G0[i] * .035;
+      o.x = r0[0] + cos(a) * r; o.y = r0[1] + sin(a) * r; o.z = G1[i] * .03; o.c = .95; o.a = .85; o.s = .85;
+    },
+    lines(b) {
+      let n = 0; const S = 120;
+      for (let k = 0; k < 7; k++) {
+        const r0 = RING[k];
+        for (let j = 0; j < S; j++) {
+          const a1 = j / S * TAU, a2 = (j + 1) / S * TAU, q1 = .58 * wob(k, a1), q2 = .58 * wob(k, a2);
+          n = seg(b, n, r0[0] + cos(a1) * q1, r0[1] + sin(a1) * q1, 0, r0[0] + cos(a2) * q2, r0[1] + sin(a2) * q2, 0);
+        }
+      }
+      return n;
+    }
+  };
+
+  /* 2. the cycle: each lap deepens the groove */
+  const s2 = {
+    view: { rx: -.25, spin: 0 },
+    lineCap: 20 * 140, lineOpacity: .42,
+    laps: 7, wob: 0, spd: .55, hi: -1, w: 0, relief: 0,
+    frame(t, c, dt) {
+      const h = hk("cycle:");
+      this.laps = ease(this.laps, h === "cost" ? 19 : 7, dt, 1.6);
+      this.wob = ease(this.wob, h === "mind" ? 1 : 0, dt, 4);
+      this.spd = ease(this.spd, h === "behavior" ? 1.6 : .55, dt, 3);
+      const node = h !== null && /^\d$/.test(h) ? +h : -1;
+      if (node >= 0) this.hi = node;
+      this.w = ease(this.w, node >= 0 ? 1 : 0, dt, 5);
+      this.ph = (this.ph || 0) + dt * this.spd * (c.calm ? .25 : 1);
+      const penA = -PI / 2 + this.ph;
+      this.penA = penA;
+      const rel = (fr((penA + PI / 2) / TAU) * 5) % 5;
+      this.relief = ease(this.relief, rel > 3.8 && rel < 4.6 ? 1 : 0, dt, 6);
+      this.t = t;
+    },
+    ring(a, lap) { const r = 2.2 + lap * .045 + sin(a * 3 + lap * 1.7) * .02 * (1 + lap * .3) + this.wob * sin(a * 9 + lap) * .12; return [cos(a) * r, sin(a) * r * .86]; },
+    at(i, o) {
+      const t = this.t;
+      if (R3[i] < .1) {
+        const a = this.penA + G0[i] * .06, p = this.ring(a, 0);
+        o.x = p[0] + G1[i] * .05; o.y = p[1] + G2[i] * .05; o.z = .06; o.c = 0; o.s = 1.4; return;
+      }
+      if (R3[i] < .36) {
+        const k = Math.floor(R2[i] * 5), a = -PI / 2 + k * TAU / 5, p = this.ring(a, 0);
+        o.x = p[0] + G0[i] * .09; o.y = p[1] + G1[i] * .09; o.z = G2[i] * .04; o.c = .95; o.s = 1.05;
+        if (k === 4) o.c = lerp(.95, .55, this.relief);
+        if (this.w > .02) { if (k === this.hi) { o.h = this.w * .85; o.s = 1.35; } else o.a = 1 - this.w * .5; }
+        return;
+      }
+      const a = R0[i] * TAU, lap = Math.floor(R1[i] * this.laps), p = this.ring(a, lap);
+      o.x = p[0] + G0[i] * .012; o.y = p[1] + G1[i] * .012; o.z = G2[i] * .02; o.c = .82; o.a = .6; o.s = .7;
+    },
+    lines(b) {
+      let n = 0; const S = 140, L = Math.round(this.laps);
+      for (let lap = 0; lap < L; lap++) for (let j = 0; j < S; j++) {
+        const a1 = j / S * TAU, a2 = (j + 1) / S * TAU, p = this.ring(a1, lap), q = this.ring(a2, lap);
+        n = seg(b, n, p[0], p[1], 0, q[0], q[1], 0);
+      }
+      return n;
+    }
+  };
+
+  /* 3. a calm surface with loops running inside */
+  const NL = 24;
+  const s3 = {
+    view: { rx: .2, spin: .1 },
+    lineCap: NL * 40, lineOpacity: .45, lineColor: "#e5482e",
+    spd: 1, out: 0, avoid: 0, snap: 0, maybe: 0,
+    init() { this.cen = []; for (let k = 0; k < NL; k++) { const r = 1.35 * Math.cbrt(U.rng()), i = Math.floor(U.rng() * N); this.cen.push([FX[i] * r, FY[i] * r, FZ[i] * r, .18 + U.rng() * .28]); } },
+    frame(t, c, dt) {
+      const h = hk("signs:");
+      this.spd = ease(this.spd, h === "0" ? 2.8 : 1, dt, 3); this.out = ease(this.out, h === "1" ? 1 : 0, dt, 3);
+      this.avoid = ease(this.avoid, h === "2" ? 1 : 0, dt, 3); this.snap = ease(this.snap, h === "3" ? 1 : 0, dt, 3);
+      this.maybe = ease(this.maybe, h === "4" ? 1 : 0, dt, 4);
+      this.ph = (this.ph || 0) + dt * this.spd * (c.calm ? .25 : 1); this.t = t;
+    },
+    loopPos(k, a) { const c = this.cen[k]; return [c[0] + cos(a) * c[3], c[1] + sin(a) * c[3], c[2] + sin(a * 2) * c[3] * .3]; },
+    at(i, o) {
+      const t = this.t;
+      if (R3[i] < .3) {
+        const k = i % NL, a = R1[i] * TAU + this.ph * (2 + (k % 3)), p = this.loopPos(k, a);
+        let x = p[0], y = p[1], z = p[2];
+        if (this.out > .01) { const s = 1 + this.out * 1.3 * (.5 + .5 * sin(t * 1.6 + k)); x *= s; y *= s; z *= s; }
+        if (this.snap > .01) { const q = .32, sx = Math.round(x / q) * q, sy = Math.round(y / q) * q; const m = this.snap * (.5 + .5 * sin(t * 2.2 + k * .7)); x = lerp(x, sx, m); y = lerp(y, sy, m); }
+        if (this.maybe > .01) { const f = sin(t * 5 + R2[i] * 30) > 0 ? 1 : 0; x += this.maybe * f * .25 * (R0[i] - .5); y += this.maybe * (1 - f) * .25 * (R2[i] - .5); }
+        o.x = x; o.y = y; o.z = z; o.c = .04; o.s = 1.05; return;
+      }
+      const r = 2.3 + G0[i] * .015;
+      let x = FX[i] * r, y = FY[i] * r, z = FZ[i] * r;
+      if (this.avoid > .01) {
+        const ang = Math.atan2(y, x), d = Math.abs(((ang - .6 + PI) % TAU + TAU) % TAU - PI);
+        if (d < .7) { const push = this.avoid * (1 - d / .7) * 1.4; const m = sqrt(x * x + y * y) || 1; x += x / m * push; y += y / m * push; o.a = 1 - this.avoid * .7; }
+      }
+      o.x = x; o.y = y; o.z = z; o.c = .96; o.s = .8;
+    },
+    lines(b) {
+      let n = 0; const S = 40;
+      for (let k = 0; k < NL; k++) for (let j = 0; j < S; j++) {
+        const p = this.loopPos(k, j / S * TAU), q = this.loopPos(k, (j + 1) / S * TAU);
+        n = seg(b, n, p[0], p[1], p[2], q[0], q[1], q[2]);
+      }
+      return n;
+    }
+  };
+
+  /* 4. exposure without the ritual: the curve comes down on its own */
+  const X0 = -3.3, X1 = 3.3, YB = -1.8;
+  const peaks = [3.4, 2.6, 1.85, 1.15];
+  const erpY = x => {
+    const u = (x - X0) / (X1 - X0) * 4, k = Math.min(3, Math.floor(u)), f = u - k, p = peaks[k];
+    const rise = smooth(0, .16, f), fall = exp(-Math.max(0, f - .16) * 3.4);
+    return YB + p * rise * fall;
+  };
+  const ritY = x => {
+    const u = (x - X0) / (X1 - X0) * 9, f = fr(u);
+    return YB + 3.3 * (f < .78 ? smooth(0, .78, f) : 1 - smooth(.78, .84, f));
+  };
+  const s4 = {
+    view: { rx: 0, spin: 0 },
+    lineCap: 2 * 260 + 8, lineOpacity: .7,
+    hi: -1, w: 0, fadeR: 0,
+    frame(t, c, dt) {
+      const h = hk("erp:"); const m = h === null ? -1 : +h;
+      if (m >= 0) this.hi = m; this.w = ease(this.w, m >= 0 ? 1 : 0, dt, 5);
+      this.fadeR = ease(this.fadeR, m === 1 ? 1 : 0, dt, 3);
+      this.cur = X0 + fr(t * .06) * (X1 - X0); this.t = t;
+    },
+    at(i, o) {
+      const t = this.t;
+      if (R3[i] < .3) {
+        const x = X0 + R0[i] * (X1 - X0), y = ritY(x);
+        o.x = x; o.y = y + G0[i] * .03; o.z = -.3; o.c = .05; o.s = .9; o.a = (1 - this.fadeR * .88) * .85; return;
+      }
+      if (R3[i] < .36) { o.x = this.cur + G0[i] * .01; o.y = YB + R0[i] * 3.7; o.z = 0; o.c = .6; o.a = .35; o.s = .6; return; }
+      const x = X0 + R0[i] * (X1 - X0), y = erpY(x);
+      const below = R1[i] < .45;
+      o.x = x; o.y = below ? lerp(YB, y, R2[i]) : y + G0[i] * .025; o.z = G1[i] * .03;
+      o.c = .98; o.s = below ? .55 : 1.05; o.a = below ? .35 : 1;
+      if (this.w > .02) {
+        const u = (x - X0) / (X1 - X0) * 4, f = u - Math.floor(u);
+        const on = this.hi === 0 ? f < .18 : this.hi === 1 ? true : this.hi === 2 ? f > .18 : below;
+        if (on && (!below || this.hi === 3)) o.h = this.w * .8;
+      }
+    },
+    lines(b) {
+      let n = 0; const S = 260;
+      for (let j = 0; j < S; j++) { const x1 = X0 + j / S * (X1 - X0), x2 = X0 + (j + 1) / S * (X1 - X0); n = seg(b, n, x1, erpY(x1), 0, x2, erpY(x2), 0); }
+      n = seg(b, n, X0 - .1, YB, 0, X1 + .1, YB, 0);
+      n = seg(b, n, X0 - .1, YB, 0, X0 - .1, YB + 3.7, 0);
+      return n;
+    }
+  };
+
+  /* 5. the stereotype (a tidy grid) against the reality (many forms) */
+  const FORM = [[-2.2, 1.4], [-.1, 1.7], [2.1, 1.3], [-2.3, -.4], [0, -.1], [2.2, -.6], [-1.1, -1.9], [1.2, -1.9]];
+  const form = (k, i) => {
+    const u = R1[i], v = R2[i], g0 = G0[i], g1 = G1[i];
+    switch (k) {
+      case 0: return [g0 * .35, g1 * .35];
+      case 1: { const a = u * TAU * 3, r = .1 + u * .5; return [cos(a) * r, sin(a) * r]; }
+      case 2: { const a = u * TAU, r = .5; return [cos(a) * r + (v < .5 ? -.25 : .25), sin(a) * r * .9]; }
+      case 3: return [(u - .5) * 1.2, (Math.floor(v * 5) - 2) * .12 + sin(u * 20) * .08];
+      case 4: { const a = u * TAU; return [cos(a) * .55 * (v < .5 ? 1 : .3), sin(a) * .55 * (v < .5 ? 1 : .3)]; }
+      case 5: { const s = v < .5 ? -1 : 1; return [s * (.2 + u * .45), g1 * .25]; }
+      case 6: return [(u - .5) * 1.1 + (Math.floor(u * 8) % 2 ? .08 : -.08), (v - .5) * .1 + (Math.floor(u * 8) % 2 ? .25 : -.25)];
+      default: { const a = u * TAU * 2; return [cos(a) * .45 + g0 * .02, sin(a * 1.5) * .35 + g1 * .02]; }
+    }
+  };
+  const CELL = .42, COLS = 9, ROWS = 7;
+  const s5 = {
+    view: { rx: 0, spin: 0 },
+    lineCap: COLS * ROWS * 4, lineOpacity: .6,
+    neat: 0,
+    frame(t, c, dt) { this.neat = ease(this.neat, hk("myth:") !== null ? 1 : 0, dt, 2.6); this.t = t; },
+    at(i, o) {
+      const k = i % 8, f = form(k, i), c = FORM[k];
+      const rx = c[0] + f[0], ry = c[1] + f[1];
+      const cell = i % (COLS * ROWS), cx = (cell % COLS - (COLS - 1) / 2) * CELL, cy = (Math.floor(cell / COLS) - (ROWS - 1) / 2) * CELL;
+      const nx = cx + (R1[i] - .5) * CELL * .55, ny = cy + (R2[i] - .5) * CELL * .55;
+      o.x = lerp(rx, nx, this.neat); o.y = lerp(ry, ny, this.neat); o.z = G2[i] * .04 * (1 - this.neat);
+      o.c = lerp(k % 3 === 0 ? .1 : .9, .97, this.neat); o.s = .95;
+    },
+    lines(b) {
+      if (this.neat < .05) return 0;
+      let n = 0; const h = CELL * .36, s = this.neat;
+      for (let cell = 0; cell < COLS * ROWS; cell++) {
+        const cx = (cell % COLS - (COLS - 1) / 2) * CELL, cy = (Math.floor(cell / COLS) - (ROWS - 1) / 2) * CELL, q = h * s;
+        n = seg(b, n, cx - q, cy - q, 0, cx + q, cy - q, 0); n = seg(b, n, cx + q, cy - q, 0, cx + q, cy + q, 0);
+        n = seg(b, n, cx + q, cy + q, 0, cx - q, cy + q, 0); n = seg(b, n, cx - q, cy + q, 0, cx - q, cy - q, 0);
+      }
+      return n;
+    }
+  };
+
+  /* 6. the old loop, and a line that keeps going */
+  const LP = 600;
+  const path = u => {
+    if (u < .18) { const a = u / .18 * TAU * 2.2, r = .55 - u * .6; return [-2.4 + cos(a) * r, .1 + sin(a) * r * .86]; }
+    const v = (u - .18) / .82, x = -2.4 + .55 + v * 6.0;
+    return [x, .1 + sin(v * 9) * .22 * (1 - v * .3) + sin(v * 23) * .05 + v * .5];
+  };
+  const s6 = {
+    view: { rx: -.3, spin: 0 },
+    lineCap: LP, lineOpacity: .8,
+    frame(t) { this.t = t; this.tip = .18 + fr(t * .035) * .82; },
+    at(i, o) {
+      const t = this.t;
+      if (R3[i] > .993) { o.x = 1.2 + G0[i] * .05; o.y = 1.7 + G1[i] * .05; o.z = .05; o.c = 0; o.s = 1.1; return; }
+      if (R3[i] < .32) {
+        const u = R0[i] * this.tip, p = path(u);
+        o.x = p[0] + G0[i] * .03; o.y = p[1] + G1[i] * .03; o.z = .02; o.c = u < .18 ? .5 : .98; o.s = u > this.tip - .01 ? 1.4 : 1;
+        return;
+      }
+      const g = i % (GW * GH), gx = (g % GW - GW / 2 + .5) * SP * 1.05 + .5, gy = (Math.floor(g / GW) - GH / 2 + .5) * SP * 1.15;
+      o.x = gx + sin(t * .3 + R1[i] * 20) * .01; o.y = gy; o.z = -.2; o.c = .85; o.a = .32; o.s = .65;
+    },
+    lines(b) {
+      let n = 0;
+      for (let j = 0; j < LP - 1; j++) {
+        const u1 = j / LP * this.tip, u2 = (j + 1) / LP * this.tip, p = path(u1), q = path(u2);
+        n = seg(b, n, p[0], p[1], .02, q[0], q[1], .02);
+      }
+      return n;
+    }
+  };
+
+  return [s0, s1, s2, s3, s4, s5, s6];
+}
+;
+boot(THREE, SITE, makeScenes);
+</script>
+</body>
+</html>

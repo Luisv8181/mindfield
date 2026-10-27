@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Eating Disorders: Beyond the Noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500&family=Hanken+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rule:rgba(240,240,240,.2);
+  --ink:#eff1ef;
+  --paper:#15181c;
+  --muted:#545b63;
+  --a:#c4643c;
+  --b:#3f7351;
+  --rule:rgba(21,24,28,.18);
+  --display:"Newsreader",Georgia,"Times New Roman",serif;
+  --dw:500;
+  --lh:1;
+  --ls:-.015em;
+  --tt:none;
+  --h1:clamp(3.6rem,10vw,8.4rem);
+  --h2:clamp(2.7rem,5.6vw,4.8rem);
+  --h3:clamp(2rem,3.6vw,3rem);
+  --tk:1.6rem;
+  --rb:1.5rem;
+  --body:"Hanken Grotesk",system-ui,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);font-size:1.0625rem;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body.calm{scroll-behavior:auto}
+#field{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.no-gl #field,.no-gl .hud{display:none}
+.progress{position:fixed;left:0;top:0;height:2px;width:0;background:var(--b);z-index:60}
+
+.bar{position:fixed;left:0;right:0;top:0;z-index:50;height:3.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 clamp(1rem,4vw,3rem);background:var(--ink);border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}
+.brand{color:var(--paper);text-decoration:none;white-space:nowrap}
+.bar nav{display:flex;gap:clamp(.55rem,1.6vw,1.3rem);align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.bar a,.bar button{color:var(--muted);text-decoration:none;background:none;border:0;padding:.35rem 0;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;border-bottom:1px solid transparent}
+.bar a:hover,.bar button:hover{color:var(--paper)}
+.bar a.active{color:var(--paper);border-bottom-color:var(--b)}
+.bar button[aria-pressed="true"]{color:var(--b)}
+.bar .sep{width:1px;height:1rem;background:var(--rule)}
+
+main{position:relative;z-index:1}
+.chapter{min-height:100vh;padding:calc(3.25rem + 12vh) clamp(1.25rem,5vw,4rem) 14vh}
+.chapter.short{min-height:70vh}
+.col{width:min(35rem,100%)}
+.label{display:block;margin:0 0 1.1rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3{font-family:var(--display);font-weight:var(--dw);margin:0;line-height:var(--lh);letter-spacing:var(--ls);text-transform:var(--tt)}
+h1{font-size:var(--h1)}
+h2{font-size:var(--h2)}
+h3{font-size:var(--h3)}
+p{margin:1.1rem 0 0;max-width:62ch}
+.lead{font-size:1.2rem}
+.muted{color:var(--muted)}
+.takeaway{margin-top:1.6rem;padding-top:.9rem;border-top:1px solid var(--rule);font-family:var(--display);font-weight:var(--dw);font-size:var(--tk);line-height:1.15;text-transform:var(--tt)}
+.takeaway small{display:block;margin-bottom:.35rem;font-family:var(--mono);font-weight:400;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.block{margin-top:20vh}
+.hint{margin-top:1.4rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--muted)}
+.tags{margin:1.6rem 0 0;padding:0;list-style:none;font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tags li{display:inline}
+.tags li+li::before{content:"/";margin:0 .7rem;color:var(--rule)}
+.tags.hot li{cursor:default}
+.tags.hot li.on,.tags.hot li:hover{color:var(--paper)}
+.jump{margin-top:2rem;display:flex;gap:1.4rem;flex-wrap:wrap;font-family:var(--mono);font-size:.82rem}
+.jump a{color:var(--paper);text-underline-offset:.3em}
+.jump a:hover{color:var(--b)}
+
+.rows{margin:1.6rem 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.rows>li{border-bottom:1px solid var(--rule)}
+.rows .row,.rows button{display:grid;grid-template-columns:2rem 1fr;gap:.2rem 1rem;width:100%;padding:.95rem 0;background:none;border:0;color:inherit;font:inherit;text-align:left}
+.rows button{cursor:pointer}
+.rows button:hover b,.rows button:focus-visible b,.rows button.on b,.rows li.on b{color:var(--b)}
+.rows button:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+.rows .n{font-family:var(--mono);font-size:.82rem;color:var(--muted);padding-top:.35rem}
+.rows b{font-family:var(--display);font-weight:var(--dw);font-size:var(--rb);line-height:1.05;display:block;transition:color .2s;text-transform:var(--tt)}
+.rows span.t{color:var(--muted);display:block}
+.rows.plain .row,.rows.plain button{grid-template-columns:1fr}
+
+details.item,details.more{border-bottom:1px solid var(--rule)}
+details.item summary,details.more summary{list-style:none;cursor:pointer;padding:.95rem 0;display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline}
+details summary::-webkit-details-marker{display:none}
+details.item summary b{font-family:var(--display);font-weight:var(--dw);font-size:var(--rb);line-height:1.05;text-transform:var(--tt);transition:color .2s}
+details.item summary::after,details.more summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
+details[open] summary::after{content:"\2212"}
+details.item:hover summary b,details.item.on summary b,details[open] summary b{color:var(--b)}
+details.item summary:focus-visible,details.more summary:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+details.item .sub{display:block;color:var(--muted);font-size:.95rem}
+details .inside{padding:0 0 1.1rem;color:var(--muted)}
+details .inside p:first-child{margin-top:0}
+details .inside .tk{color:var(--paper);font-family:var(--display);font-weight:var(--dw);font-size:1.3rem;line-height:1.2;text-transform:var(--tt)}
+details.more{border-top:1px solid var(--rule);margin-top:1.6rem}
+details.more summary{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+ul.list-items{margin:1.6rem 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+ul.cols{display:grid;grid-template-columns:1fr 1fr;column-gap:2.2rem}
+ul.cols>li:nth-child(2){border-top:0}
+
+.seg{margin-top:1.6rem;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+.seg .k{color:var(--muted);margin-right:.2rem}
+.seg button{background:none;border:0;border-bottom:1px solid transparent;padding:.3rem 0;color:var(--muted);font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer}
+.seg button:hover{color:var(--paper)}
+.seg button.on{color:var(--paper);border-bottom-color:var(--b)}
+.seg button:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+
+.btn{margin-top:1.6rem;padding:.8rem 1.3rem;background:var(--b);color:var(--ink);border:0;border-radius:0;font-family:var(--mono);font-size:.85rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.btn:hover{background:var(--paper)}
+.btn:focus-visible{outline:2px solid var(--paper);outline-offset:3px}
+.phase{margin-top:1.6rem;font-family:var(--display);font-weight:var(--dw);font-size:clamp(2rem,4.4vw,3.2rem);line-height:1.02;min-height:1.1em;text-transform:var(--tt)}
+.keys{margin:1.6rem 0 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.keys li{padding:.8rem 0;border-bottom:1px solid var(--rule);font-family:var(--display);font-weight:var(--dw);font-size:1.45rem;line-height:1.15;text-transform:var(--tt)}
+.lifelines{margin-top:1.6rem;border-top:1px solid var(--rule)}
+.lifelines li{padding:.8rem 0;border-bottom:1px solid var(--rule);list-style:none;font-family:var(--mono);font-size:.84rem;letter-spacing:.04em}
+.lifelines{padding-left:0}
+.lifelines b{color:var(--b);font-weight:500}
+.quote{margin:1.8rem 0 0;padding:0;font-family:var(--qfont,var(--display));font-size:clamp(1.35rem,2.1vw,1.75rem);line-height:1.32;letter-spacing:-.005em;max-width:34rem}
+.quote cite{display:block;margin-top:.8rem;font-family:var(--mono);font-style:normal;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.stat{display:grid;grid-template-columns:10rem 1fr;gap:1rem;align-items:baseline}
+.stat .v{font-family:var(--display);font-size:1.9rem;line-height:1}
+.fine{margin-top:2.4rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--muted)}
+
+.hud{position:fixed;right:clamp(1rem,3vw,2.5rem);bottom:1.4rem;z-index:5;width:min(22rem,40vw);padding:.7rem .8rem .8rem;background:var(--ink);border:1px solid var(--rule);font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;line-height:1.5;color:var(--muted);transition:opacity .2s;pointer-events:none}
+.hud.swap{opacity:0}
+.hud .k{display:block;text-transform:uppercase;letter-spacing:.14em;margin-bottom:.3rem}
+.hud b{display:block;color:var(--paper);font-weight:500;margin-bottom:.25rem}
+
+@media (max-width:899px){
+  #field{opacity:.45}
+  .chapter{padding-top:calc(3.25rem + 8vh)}
+  .bar .brand{display:none}
+  .bar nav{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;width:100%;scrollbar-width:none}
+  .bar nav::-webkit-scrollbar{display:none}
+  .bar nav a{white-space:nowrap}
+  ul.cols{grid-template-columns:1fr}
+  .bar .hide-s{display:none}
+  .hud{display:none}
+}
+.brand-sub{color:var(--muted);margin-left:.5rem;white-space:nowrap}
+.sitefoot{position:relative;z-index:1;padding:10vh clamp(1.25rem,5vw,4rem) 8vh;border-top:1px solid var(--rule);background:var(--ink,var(--bgnow))}
+.sf-label{display:block;margin-bottom:1rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sf-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule);max-width:58rem}
+.sf-list li{border-bottom:1px solid var(--rule)}
+.sf-list a{display:grid;grid-template-columns:minmax(10rem,16rem) 1fr;gap:.3rem 2rem;padding:1rem 0;color:inherit;text-decoration:none}
+.sf-list b{font-family:var(--display);font-size:1.5rem;line-height:1.1;letter-spacing:-.01em}
+.sf-list span{color:var(--muted)}
+.sf-list a:hover b,.sf-list a:focus-visible b{color:var(--accent,var(--b))}
+.sf-list a:focus-visible{outline:2px solid var(--accent,var(--b));outline-offset:2px}
+.sf-fine{margin-top:2rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;color:var(--muted)}
+.sf-fine a{color:inherit}
+@media (max-width:899px){.sf-list a{grid-template-columns:1fr}.brand-sub{display:none}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<canvas id="field" aria-hidden="true"></canvas>
+
+<header class="bar">
+  <a class="brand" href="index.html">Mind Field</a><span class="brand-sub">/ Beyond the noise</span>
+  <nav aria-label="Chapters">
+    <a href="#c0" data-i="0">Home</a>
+    <a href="#c1" data-i="1">Types</a>
+    <a href="#c2" data-i="2">Cycle</a>
+    <a href="#c3" data-i="3">Notice</a>
+    <a href="#c4" data-i="4">Recovery</a>
+    <a href="#c5" data-i="5">Beyond</a>
+    <span class="sep hide-s" aria-hidden="true"></span>
+    <button id="soundToggle" class="hide-s" type="button" aria-pressed="false">Sound off</button>
+    <button id="motionToggle" class="hide-s" type="button" aria-pressed="false">Calm motion</button>
+  </nav>
+</header>
+
+<main>
+  <section class="chapter" id="c0" data-scene="0">
+    <div class="col">
+      <span class="label">Understanding eating disorders</span>
+      <h1>More than food.</h1>
+      <p class="lead">Eating disorders can affect thoughts, emotions, routines, relationships, identity, and physical health.</p>
+      <p class="muted">They are serious illnesses, not choices, phases, or failures of willpower.</p>
+      <ul class="tags hot">
+        <li data-hot="home:0" tabindex="0">Thoughts</li><li data-hot="home:1" tabindex="0">Feelings</li><li data-hot="home:2" tabindex="0">Control</li><li data-hot="home:3" tabindex="0">Identity</li><li data-hot="home:4" tabindex="0">Recovery</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <section class="chapter" id="c1" data-scene="1">
+    <div class="col">
+      <span class="label">Chapter 1 of 5, Types</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">What they are</span>
+      <h2>Not one single picture.</h2>
+      <p>Eating disorders can reshape how a person thinks, feels, behaves, and relates to their body, food, other people, and everyday life. The struggle may be visible, or almost completely hidden.</p>
+      <ul class="rows plain">
+        <li data-hot="types:0" tabindex="0"><div class="row"><span><b>Appearance is not a diagnosis.</b></span></div></li>
+        <li data-hot="types:1" tabindex="0"><div class="row"><span><b>They are not choices or failures of willpower.</b></span></div></li>
+        <li data-hot="types:2" tabindex="0"><div class="row"><span><b>They can occur at any body size.</b></span></div></li>
+        <li data-hot="types:3" tabindex="0"><div class="row"><span><b>Medical risk is not always visible from the outside.</b></span></div></li>
+        <li data-hot="types:4" tabindex="0"><div class="row"><span><b>Earlier recognition and treatment can support recovery.</b></span></div></li>
+      </ul>
+
+      <div class="takeaway"><small>Takeaway</small>Different experiences can share the same seriousness.</div>
+      <details class="more"><summary>Not one single picture</summary><div class="inside"><p>Eating disorders do not look only one way. People may struggle with restriction, binge eating, compensatory behaviors, sensory or fear-based avoidance, or symptoms that shift over time. Seriousness is not determined by appearance.</p><p class="tk">Different experiences can share the same seriousness.</p></div></details>
+      <details class="more"><summary>More than food</summary><div class="inside"><p>Eating disorders are serious mental health conditions involving disturbances in eating behavior and often intense thoughts, emotions, fears, or rules around food, body image, safety, or control. They can affect people of any gender, age, race, ethnicity, or body size.</p><p class="tk">You cannot tell whether someone has an eating disorder by appearance alone.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c2" data-scene="2">
+    <div class="col">
+      <span class="label">Chapter 2 of 5, The cycle</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">Reading the loop</span>
+      <h2>What keeps it going?</h2>
+      <ol class="rows">
+        <li><button type="button" data-hot="loop:0"><span class="n">1</span><span><b>Distress</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="loop:1"><span class="n">2</span><span><b>Rules</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="loop:2"><span class="n">3</span><span><b>Behavior</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="loop:3"><span class="n">4</span><span><b>Relief</b><span class="t"></span></span></button></li>
+        <li><button type="button" data-hot="loop:4"><span class="n">5</span><span><b>Shame</b><span class="t"></span></span></button></li>
+      </ol>
+
+      <p>Recovery work often involves slowing the loop down enough to notice what the behavior is trying to solve, then building safer and more flexible responses over time.</p>
+      <ul class="rows plain">
+        <li><div class="row"><span><b>Mind</b><span class="t">Rigid thoughts, fear, comparison, self-criticism.</span></span></div></li>
+        <li><div class="row"><span><b>Body</b><span class="t">Tension, exhaustion, hunger cues, overwhelm.</span></span></div></li>
+        <li><div class="row"><span><b>Behavior</b><span class="t">Avoiding, checking, restricting, bingeing, compensating.</span></span></div></li>
+        <li data-hot="loop:goal" tabindex="0"><div class="row"><span><b>Goal</b><span class="t">Interrupt the loop without replacing it with more shame.</span></span></div></li>
+      </ul>
+      <div class="takeaway"><small>Takeaway</small>Short-term relief can strengthen the long-term loop.</div>
+      <details class="more"><summary>The cycle can feel automatic</summary><div class="inside"><p>A trigger such as distress, shame, conflict, or body-image pain may activate rules or urges. A behavior can then briefly reduce tension or create a feeling of control. That short-term relief can reinforce the loop, even when the pattern causes harm later.</p><p class="tk">Short-term relief can strengthen the long-term loop.</p></div></details>
+      <details class="more"><summary>Why the cycle is hard to break</summary><div class="inside"><p>The behavior often does something in the short term: numbs emotion, creates predictability, lowers anxiety, or restores a sense of control. Understanding that function helps explain why recovery needs support, alternatives, and flexibility rather than shame.</p><p class="tk">Understanding function helps make room for better support.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c3" data-scene="3">
+    <div class="col">
+      <span class="label">Chapter 3 of 5, Warning signs</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">Notice without minimizing</span>
+      <h2>What matters most?</h2>
+      <p>The most useful question is not “Does this look severe enough?” but rather: “Is this starting to take over?”</p>
+      <p class="muted">You do not have to wait for “bad enough” to ask for help.</p>
+      <ul class="rows plain">
+        <li data-hot="q:0" tabindex="0"><div class="row"><span><b>Has eating become ruled by fear, guilt, or rigid rules?</b></span></div></li>
+        <li data-hot="q:1" tabindex="0"><div class="row"><span><b>Is food or body image taking over mental space?</b></span></div></li>
+        <li data-hot="q:2" tabindex="0"><div class="row"><span><b>Are social, school, work, or family routines narrowing?</b></span></div></li>
+        <li data-hot="q:3" tabindex="0"><div class="row"><span><b>Do physical symptoms or distress keep increasing?</b></span></div></li>
+      </ul>
+
+      <div class="takeaway"><small>Takeaway</small>Concern can be valid before things look extreme.</div>
+      <details class="more"><summary>What to notice</summary><div class="inside"><p>Possible warning signs can include preoccupation with food or body image, rigid rules, avoiding meals, secretive patterns, mood or concentration changes, fatigue, dizziness, and increasing interference with daily life. A person does not need every sign for concern to be valid.</p><p class="tk">Warning signs are clues, not a complete definition.</p></div></details>
+      <details class="more"><summary>Reading the warning signs carefully</summary><div class="inside"><p>These signs are not a self-diagnosis quiz. They are a way to notice when food, body image, rules, or distress are taking up more mental space and interfering with life, relationships, energy, or well-being.</p><p class="tk">Concern can be valid before things look extreme.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c4" data-scene="4">
+    <div class="col">
+      <span class="label">Chapter 4 of 5, Recovery</span>
+      <span class="label" style="margin-top:-.4rem;color:var(--b)">Support paths</span>
+      <h2>What can help?</h2>
+      <ol class="rows">
+        <li><button type="button" data-hot="path:0"><span class="n">1</span><span><b>Therapy</b><span class="t">Helps address fear, rigidity, shame, and emotional pain.</span></span></button></li>
+        <li><button type="button" data-hot="path:1"><span class="n">2</span><span><b>Medical care</b><span class="t">Monitors and treats physical complications and health risk.</span></span></button></li>
+        <li><button type="button" data-hot="path:2"><span class="n">3</span><span><b>Nutrition support</b><span class="t">Builds safer, more flexible patterns around nourishment.</span></span></button></li>
+        <li><button type="button" data-hot="path:3"><span class="n">4</span><span><b>Community</b><span class="t">Reduces isolation and supports long-term change.</span></span></button></li>
+      </ol>
+
+      <p>If eating, body image, or compensatory patterns are taking over daily life, professional support is worth seeking earlier rather than later.</p>
+      <div class="takeaway"><small>Takeaway</small>Recovery is supported, not forced.</div>
+      <details class="more"><summary>Support and treatment</summary><div class="inside"><p>Support can include psychotherapy, medical monitoring, nutrition support from qualified professionals, family or community support, and higher levels of care when needed. Different people need different mixes of support.</p><p class="tk">Recovery is supported, not forced.</p></div></details>
+    </div>
+  </section>
+
+  <section class="chapter" id="c5" data-scene="5">
+    <div class="col">
+      <span class="label">Recovery</span>
+      <h2>A life larger than the disorder.</h2>
+      <p class="lead">Recovery is often uneven: progress, difficult days, relearning, support, and growth can all exist at once.</p>
+      <p>Treatment can help people rebuild flexibility, nourishment, safety, connection, and trust over time.</p>
+      <div class="takeaway"><small>Takeaway</small>You are more than the disorder.</div>
+      <details class="more"><summary>Recovery is a journey, not a straight line</summary><div class="inside"><p>Recovery may include therapy, medical care, nutrition support, community, and self-compassion. Progress is often uneven. The goal is not perfection but a life that becomes larger than the disorder.</p><p class="tk">Recovery can be hopeful even when it is nonlinear.</p></div></details>
+      <details class="more"><summary>Recovery changes the story</summary><div class="inside"><p>Eating disorders are serious illnesses, but recovery is possible. Recovery can involve rebuilding trust in the body, increasing flexibility around food, reducing shame and isolation, addressing medical needs, and creating a life that is larger than the disorder.</p><p class="tk">You are more than the disorder, and recovery does not have to be perfectly linear.</p></div></details>
+      <div class="block" style="margin-top:12vh">
+        <span class="label">Key ideas</span>
+      <ul class="keys">
+        <li>Eating disorders are serious illnesses.</li>
+        <li>Appearance is not a diagnosis.</li>
+        <li>Different experiences can share the same seriousness.</li>
+        <li>The cycle often serves a short-term function.</li>
+        <li>Recovery is possible.</li>
+        <li>You do not have to wait to seek support.</li>
+      </ul>
+        <p class="fine">Educational content. It is not a substitute for care from a qualified professional.</p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="sitefoot">
+  <span class="sf-label">More topics</span>
+  <ul class="sf-list">
+    <li><a href="anxiety.html"><b>Anxiety</b><span>When the alarm gets loud. A protective signal that can become too sensitive, and how to slow it.</span></a></li>
+    <li><a href="ocd.html"><b>OCD</b><span>More than neatness. How doubt, rituals, and relief form a loop, and how ERP helps.</span></a></li>
+    <li><a href="ptsd.html"><b>PTSD</b><span>A trauma response pattern. Intrusions, avoidance, hyperarousal, and widening the present.</span></a></li>
+    <li><a href="bipolar.html"><b>Bipolar I and II</b><span>When the frequency shifts. Mania, hypomania, depression, mixed states, and the circadian anchor.</span></a></li>
+    <li><a href="psychosis.html"><b>Psychosis</b><span>When reality breaches. Salience, symptoms, how to support someone, and grounding.</span></a></li>
+  </ul>
+  <p class="sf-fine"><a href="index.html">All topics</a> · If you are in immediate danger, contact local emergency services. In the USA and Canada, call or text 988.</p>
+</footer>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+const SITE = {"count":11000,"size":2.2,"seed":99,"palette":{"ramp":["#c4643c","#5d646c","#3f7351"],"hot":"#15181c","line":"#15181c"},"fontLoad":"500 100px \"Newsreader\"","displayFont":"\"Newsreader\", Georgia, serif","pacers":null};
+/* Shared engine. Inlined into each page by build.mjs.
+   Globals provided by the build: SITE (json), THREE (module), makeScenes (fn from the site's scenes.js). */
+
+async function boot(THREE, SITE, makeScenes) {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+  const sections = $$(".chapter");
+  const navLinks = $$(".bar nav a[data-i]");
+
+  /* in-page links scroll with script, so they also work where the page is loaded without a real URL */
+  document.addEventListener("click", e => {
+    const a = e.target.closest('a[href^="#"]'); if (!a) return;
+    const el = document.getElementById(a.getAttribute("href").slice(1)); if (!el) return;
+    e.preventDefault(); el.scrollIntoView({ behavior: ctx.calm ? "auto" : "smooth" });
+  });
+
+  /* ---------- shared state ---------- */
+  const ctx = {
+    t: 0, p: {}, hotKey: "", hotAmt: 0, calm: matchMedia("(prefers-reduced-motion: reduce)").matches,
+    pace: { mode: "", step: -1, running: false, scale: 1, target: 1, k: 0 }
+  };
+
+  /* ---------- toggles ---------- */
+  const motionToggle = $("#motionToggle");
+  function syncMotion() {
+    motionToggle.setAttribute("aria-pressed", String(ctx.calm));
+    motionToggle.textContent = ctx.calm ? "Calm motion on" : "Calm motion";
+    document.body.classList.toggle("calm", ctx.calm);
+  }
+  motionToggle.addEventListener("click", () => { ctx.calm = !ctx.calm; syncMotion(); blip(520, .02, .04, "triangle"); });
+  syncMotion();
+
+  let soundOn = false, audioCtx = null;
+  const soundToggle = $("#soundToggle");
+  const ac = () => { if (!audioCtx) { const A = window.AudioContext || window.webkitAudioContext; if (A) audioCtx = new A(); } return audioCtx; };
+  function blip(freq = 520, attack = .01, release = .05, type = "sine") {
+    if (!soundOn) return;
+    const c = ac(); if (!c) return;
+    const now = c.currentTime, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, now);
+    g.gain.setValueAtTime(.0001, now);
+    g.gain.exponentialRampToValueAtTime(.05, now + attack);
+    g.gain.exponentialRampToValueAtTime(.0001, now + attack + release);
+    o.connect(g).connect(c.destination); o.start(now); o.stop(now + attack + release + .02);
+  }
+  soundToggle.addEventListener("click", async () => {
+    soundOn = !soundOn;
+    soundToggle.setAttribute("aria-pressed", String(soundOn));
+    soundToggle.textContent = soundOn ? "Sound on" : "Sound off";
+    const c = ac(); if (c && c.state === "suspended") await c.resume();
+    blip(soundOn ? 720 : 360, .02, .06, "triangle");
+  });
+
+  /* ---------- params (segmented controls) ---------- */
+  $$("[data-param]").forEach(btn => {
+    const key = btn.dataset.param, val = btn.dataset.value;
+    if (btn.classList.contains("on")) ctx.p[key] = val;
+    btn.addEventListener("click", () => {
+      ctx.p[key] = val;
+      $$(`[data-param="${key}"]`).forEach(b => { const on = b === btn; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+      blip(580, .01, .04, "triangle");
+    });
+  });
+
+  /* ---------- hover / focus targets ---------- */
+  let hotTarget = 0;
+  $$("[data-hot]").forEach(el => {
+    const key = el.dataset.hot;
+    const on = () => { ctx.hotKey = key; hotTarget = 1; el.classList.add("on"); blip(520 + (key.length % 7) * 30, .01, .03, "triangle"); };
+    const off = () => { hotTarget = 0; el.classList.remove("on"); };
+    el.addEventListener("pointerenter", on);
+    el.addEventListener("focusin", on);
+    el.addEventListener("pointerleave", off);
+    el.addEventListener("focusout", off);
+  });
+
+  /* ---------- pacer ---------- */
+  const pc = SITE.pacers;
+  if (pc) {
+    const btn = $("#paceBtn"), phaseEl = $("#phase"), textEl = $("#paceText");
+    let timer = null, idx = 0;
+    const mode = () => pc.modes.find(m => m.id === ctx.pace.mode);
+    ctx.pace.mode = pc.modes[0].id;
+    function reset() {
+      ctx.pace.running = false; ctx.pace.step = -1; ctx.pace.target = 1; clearTimeout(timer);
+      const m = mode(); btn.textContent = m.button; phaseEl.textContent = "Ready"; textEl.textContent = m.idle;
+    }
+    function step() {
+      const m = mode(), p = m.phases[idx];
+      ctx.pace.step = idx; ctx.pace.target = p.scale;
+      phaseEl.textContent = p.name; textEl.textContent = p.text; blip(p.f, .02, .08, "sine");
+      timer = setTimeout(() => { idx = (idx + 1) % m.phases.length; if (ctx.pace.running) step(); }, p.ms);
+    }
+    btn.addEventListener("click", () => {
+      ctx.pace.running = !ctx.pace.running; clearTimeout(timer);
+      if (ctx.pace.running) { btn.textContent = "Stop"; idx = 0; step(); } else reset();
+    });
+    $$("[data-pmode]").forEach(b => b.addEventListener("click", () => {
+      ctx.pace.mode = b.dataset.pmode;
+      $$("[data-pmode]").forEach(x => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); });
+      reset(); blip(580, .01, .04, "triangle");
+    }));
+    reset();
+  }
+
+  /* ---------- scroll ---------- */
+  const progress = $("#progress");
+  const updateProgress = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progress.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
+  };
+  addEventListener("scroll", updateProgress, { passive: true }); updateProgress();
+
+  function targetState() {
+    const vc = scrollY + innerHeight * .5;
+    const mids = sections.map(s => s.offsetTop + s.offsetHeight / 2);
+    if (vc <= mids[0]) return 0;
+    if (vc >= mids[mids.length - 1]) return sections.length - 1;
+    let i = 0;
+    while (i < mids.length - 1 && vc > mids[i + 1]) i++;
+    const f = (vc - mids[i]) / (mids[i + 1] - mids[i]);
+    const e = clamp((f - .3) / .4);
+    return i + e * e * (3 - 2 * e);
+  }
+
+  const hudName = $("#hudName"), hudText = $("#hudText"), hud = $(".hud");
+  let hudIdx = -1, scenes = [];
+  function syncNav(tgt) {
+    const ni = clamp(Math.round(tgt), 0, sections.length - 1);
+    navLinks.forEach(a => a.classList.toggle("active", Number(a.dataset.i) === ni));
+    if (hud && ni !== hudIdx && scenes[ni]) {
+      hudIdx = ni; hud.classList.add("swap");
+      setTimeout(() => { hudName.textContent = scenes[ni].name; hudText.textContent = scenes[ni].caption; hud.classList.remove("swap"); }, 180);
+    }
+  }
+
+  /* ---------- WebGL ---------- */
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: $("#field"), antialias: true, alpha: true }); }
+  catch (e) { document.body.classList.add("no-gl"); }
+  if (!renderer) {
+    addEventListener("scroll", () => syncNav(targetState()), { passive: true });
+    return;
+  }
+
+  try { await Promise.race([document.fonts.load(SITE.fontLoad), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
+
+  const N = matchMedia("(max-width:899px)").matches ? Math.round((SITE.count || 8000) * .6) : (SITE.count || 8000);
+  const R0 = new Float32Array(N), R1 = new Float32Array(N), R2 = new Float32Array(N), R3 = new Float32Array(N);
+  const G0 = new Float32Array(N), G1 = new Float32Array(N), G2 = new Float32Array(N);
+  const FX = new Float32Array(N), FY = new Float32Array(N), FZ = new Float32Array(N);
+  let seed = SITE.seed || 1337;
+  const rng = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const gauss = () => (rng() + rng() + rng() + rng() - 2) * 1.2;
+  const GA = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) {
+    R0[i] = rng(); R1[i] = rng(); R2[i] = rng(); R3[i] = rng();
+    G0[i] = gauss(); G1[i] = gauss(); G2[i] = gauss();
+    const y = 1 - (i + .5) / N * 2, r = Math.sqrt(1 - y * y), a = i * GA;
+    FX[i] = Math.cos(a) * r; FY[i] = y; FZ[i] = Math.sin(a) * r;
+  }
+
+  /* text -> point targets, sampled from real glyph pixels */
+  const textCache = {};
+  function text(str, { width = 7, px = 260, weight = 800, stride = 3 } = {}) {
+    const key = str + width + px;
+    if (textCache[key]) return textCache[key];
+    const c = document.createElement("canvas"), g = c.getContext("2d");
+    g.font = `${weight} ${px}px ${SITE.displayFont}`;
+    const w = Math.ceil(g.measureText(str).width) + 40, h = Math.ceil(px * 1.3);
+    c.width = w; c.height = h;
+    g.font = `${weight} ${px}px ${SITE.displayFont}`; g.textBaseline = "middle"; g.fillStyle = "#fff";
+    g.fillText(str, 20, h / 2);
+    const d = g.getImageData(0, 0, w, h).data, xs = [], ys = [];
+    for (let y = 0; y < h; y += stride) for (let x = 0; x < w; x += stride) if (d[(y * w + x) * 4 + 3] > 128) { xs.push(x); ys.push(y); }
+    const k = width / w, out = new Float32Array(xs.length * 2);
+    for (let i = 0; i < xs.length; i++) { out[i * 2] = (xs[i] - w / 2) * k; out[i * 2 + 1] = -(ys[i] - h / 2) * k; }
+    return (textCache[key] = out);
+  }
+
+  const U = { N, THREE, ctx, R0, R1, R2, R3, G0, G1, G2, FX, FY, FZ, rng, gauss, clamp, lerp, smooth, text, TAU: Math.PI * 2 };
+  scenes = makeScenes(U);
+  if (scenes.length !== sections.length) console.warn("scene/chapter count mismatch", scenes.length, sections.length);
+  scenes.forEach(s => s.init && s.init(U));
+
+  /* palette */
+  const hex = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
+  const ramp = SITE.palette.ramp.map(hex), hotCol = hex(SITE.palette.hot);
+  const rgb = [0, 0, 0];
+  function pal(c) {
+    const x = clamp(c) * (ramp.length - 1), i = Math.min(ramp.length - 2, Math.floor(x)), f = x - i, a = ramp[i], b = ramp[i + 1];
+    rgb[0] = a[0] + (b[0] - a[0]) * f; rgb[1] = a[1] + (b[1] - a[1]) * f; rgb[2] = a[2] + (b[2] - a[2]) * f;
+  }
+
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
+  camera.position.set(0, 0, 12.4);
+  const group = new THREE.Group(); scene.add(group);
+
+  const geo = new THREE.BufferGeometry();
+  const posA = new Float32Array(N * 3), colA = new Float32Array(N * 3), sizA = new Float32Array(N), alpA = new Float32Array(N);
+  geo.setAttribute("position", new THREE.BufferAttribute(posA, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute("aCol", new THREE.BufferAttribute(colA, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute("aSize", new THREE.BufferAttribute(sizA, 1).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute("aAlpha", new THREE.BufferAttribute(alpA, 1).setUsage(THREE.DynamicDrawUsage));
+  const uni = { uPR: { value: renderer.getPixelRatio() } };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: uni, transparent: true, depthWrite: false,
+    vertexShader: `
+      attribute vec3 aCol; attribute float aSize; attribute float aAlpha;
+      uniform float uPR; varying vec3 vCol; varying float vA;
+      void main(){
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = max(1.0, aSize * uPR * (10.0 / -mv.z));
+        float depth = clamp((-mv.z - 7.0) / 9.0, 0.0, 1.0);
+        vCol = aCol; vA = aAlpha * (1.0 - 0.55 * depth);
+      }`,
+    fragmentShader: `
+      varying vec3 vCol; varying float vA;
+      void main(){
+        float d = length(gl_PointCoord - 0.5);
+        if (d > 0.5) discard;
+        gl_FragColor = vec4(vCol, vA * (1.0 - smoothstep(0.38, 0.5, d)));
+      }`
+  });
+  const points = new THREE.Points(geo, mat); points.frustumCulled = false; group.add(points);
+
+  /* optional hairline layer per scene: scene.lines(buf, t, ctx) writes segment endpoints and returns the count */
+  scenes.forEach(s => {
+    if (!s.lines) return;
+    s._la = new Float32Array((s.lineCap || 1000) * 6);
+    s._lg = new THREE.BufferGeometry();
+    s._lg.setAttribute("position", new THREE.BufferAttribute(s._la, 3).setUsage(THREE.DynamicDrawUsage));
+    s._lo = new THREE.LineSegments(s._lg, new THREE.LineBasicMaterial({ color: s.lineColor || SITE.palette.line || "#888888", transparent: true, opacity: 0, depthWrite: false }));
+    s._lo.frustumCulled = false; s._lo.visible = false; group.add(s._lo);
+  });
+  function drawLines(S, w) {
+    if (!S._lo || w < .01) return;
+    const n = Math.min(S.lineCap || 1000, S.lines(S._la, ctx.t, ctx) | 0);
+    S._lg.setDrawRange(0, n * 2); S._lg.attributes.position.needsUpdate = true;
+    S._lo.material.opacity = w * (S.lineOpacity ?? .55); S._lo.visible = n > 0;
+  }
+
+  let baseX = 0, baseS = 1, halfW = 1, halfH = 1;
+  function resize() {
+    const w = innerWidth, h = innerHeight, a = w / h;
+    renderer.setSize(w, h, false);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); uni.uPR.value = renderer.getPixelRatio();
+    camera.aspect = a; camera.updateProjectionMatrix();
+    baseS = Math.min(1, Math.max(.5, a * .85));
+    baseX = a > 1.1 ? 3.3 * baseS : 0;
+    group.scale.setScalar(baseS);
+    halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z; halfW = halfH * a;
+  }
+  addEventListener("resize", resize); resize();
+
+  let pnx = 0, pny = 0, px = 0, py = 0, pActive = 0, pTarget = 0;
+  addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse") return;
+    pnx = e.clientX / innerWidth * 2 - 1; pny = -(e.clientY / innerHeight * 2 - 1); pTarget = 1;
+  });
+  addEventListener("pointerleave", () => { pTarget = 0; });
+  document.addEventListener("pointerleave", () => { pTarget = 0; });
+
+  const oa = { x: 0, y: 0, z: 0, c: .5, s: 1, a: 1, h: 0 }, ob = { x: 0, y: 0, z: 0, c: .5, s: 1, a: 1, h: 0 };
+  const BASE = SITE.size || 2.7;
+  let state = targetState(), motion = 1, t = 0, spin = 0, vrx = 0, vry = 0, vsp = .1, tx = 0, ty = 0;
+  const clock = new THREE.Clock();
+  const wrap = a => { a = (a + Math.PI) % (Math.PI * 2); if (a < 0) a += Math.PI * 2; return a - Math.PI; };
+  const reset = o => { o.x = o.y = o.z = 0; o.c = .5; o.s = 1; o.a = 1; o.h = 0; };
+
+  function frame() {
+    const dt = Math.min(clock.getDelta(), .05);
+    const tgt = targetState();
+    state += (tgt - state) * (1 - Math.exp(-dt * (ctx.calm ? 3 : 5)));
+    motion += ((ctx.calm ? .25 : 1) - motion) * (1 - Math.exp(-dt * 3));
+    t += dt * motion; ctx.t = t;
+    ctx.hotAmt += (hotTarget - ctx.hotAmt) * (1 - Math.exp(-dt * 9));
+    ctx.pace.scale += (ctx.pace.target - ctx.pace.scale) * (1 - Math.exp(-dt * 1.4));
+    ctx.pace.k += ((ctx.pace.running ? 1 : 0) - ctx.pace.k) * (1 - Math.exp(-dt * 3));
+    pActive += (pTarget - pActive) * (1 - Math.exp(-dt * 4));
+    px += (pnx - px) * .25; py += (pny - py) * .25;
+
+    const s = clamp(state, 0, scenes.length - 1), i0 = Math.floor(s), i1 = Math.min(i0 + 1, scenes.length - 1);
+    let f = s - i0; f = f * f * (3 - 2 * f); if (i0 === i1) f = 0;
+    const A = scenes[i0], B = scenes[i1];
+    A.frame && A.frame(t, ctx, dt);
+    if (f > .0005 && B !== A) B.frame && B.frame(t, ctx, dt);
+
+    const va = A.view || {}, vb = B.view || {};
+    const tvx = lerp(va.rx || 0, vb.rx || 0, f), tvy = lerp(va.ry || 0, vb.ry || 0, f), tsp = lerp(va.spin ?? .1, vb.spin ?? .1, f);
+    vrx += (tvx - vrx) * (1 - Math.exp(-dt * 3)); vry += (tvy - vry) * (1 - Math.exp(-dt * 3)); vsp += (tsp - vsp) * (1 - Math.exp(-dt * 3));
+    spin += dt * vsp * motion;
+
+    const doPush = !ctx.calm && pActive > .02;
+    const lx = (px * halfW - baseX) / baseS, ly = (py * halfH) / baseS, R = 1.25, R2q = R * R, push = .5 * pActive;
+    const mixing = f > .0005 && B !== A;
+
+    for (let i = 0; i < N; i++) {
+      reset(oa); A.at(i, oa);
+      let x = oa.x, y = oa.y, z = oa.z, c = oa.c, sz = oa.s, al = oa.a, h = oa.h;
+      if (mixing) {
+        reset(ob); B.at(i, ob);
+        x += (ob.x - x) * f; y += (ob.y - y) * f; z += (ob.z - z) * f; c += (ob.c - c) * f;
+        sz += (ob.s - sz) * f; al += (ob.a - al) * f; h += (ob.h - h) * f;
+      }
+      if (doPush) {
+        const dx = x - lx, dy = y - ly, d2 = dx * dx + dy * dy;
+        if (d2 < R2q && d2 > 1e-6) { const d = Math.sqrt(d2), k = (1 - d / R) * (1 - d / R) * push; x += dx / d * k; y += dy / d * k; }
+      }
+      const o3 = i * 3; posA[o3] = x; posA[o3 + 1] = y; posA[o3 + 2] = z;
+      pal(c); const hh = clamp(h);
+      colA[o3] = rgb[0] + (hotCol[0] - rgb[0]) * hh; colA[o3 + 1] = rgb[1] + (hotCol[1] - rgb[1]) * hh; colA[o3 + 2] = rgb[2] + (hotCol[2] - rgb[2]) * hh;
+      sizA[i] = BASE * sz * (1 + hh * .9); alpA[i] = clamp(al + hh * .35);
+    }
+    geo.attributes.position.needsUpdate = true; geo.attributes.aCol.needsUpdate = true;
+    geo.attributes.aSize.needsUpdate = true; geo.attributes.aAlpha.needsUpdate = true;
+    for (const S of scenes) if (S._lo) S._lo.visible = false;
+    drawLines(A, mixing ? 1 - f : 1); if (mixing) drawLines(B, f);
+
+    tx += ((ctx.calm ? 0 : pny * .1) - tx) * .05; ty += ((ctx.calm ? 0 : pnx * .16) - ty) * .05;
+    group.rotation.x = vrx + tx; group.rotation.y = vry + (vsp > .001 ? wrap(spin) * .35 : 0) + ty;
+    group.position.x = baseX;
+
+    syncNav(tgt);
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  syncNav(targetState());
+  requestAnimationFrame(frame);
+}
+
+const makeScenes = (U) => {
+  const { N, R0, R1, R2, R3, G0, G1, G2, FX, FY, FZ, TAU, clamp, lerp, smooth, ctx, rng } = U;
+  const sin = Math.sin, cos = Math.cos, PI = Math.PI;
+  const hk = pfx => (ctx.hotAmt > .04 && ctx.hotKey.startsWith(pfx)) ? ctx.hotKey.slice(pfx.length) : null;
+  const ease = (cur, tgt, dt, rate = 4) => cur + (tgt - cur) * (1 - Math.exp(-dt * rate));
+  const fr = x => x - Math.floor(x);
+  const seg = (b, n, x1, y1, z1, x2, y2, z2) => { const o = n * 6; b[o] = x1; b[o + 1] = y1; b[o + 2] = z1; b[o + 3] = x2; b[o + 4] = y2; b[o + 5] = z2; return n + 1; };
+  const circle = (b, n, cx, cy, r, S, ry = 1) => { for (let j = 0; j < S; j++) { const a1 = j / S * TAU, a2 = (j + 1) / S * TAU; n = seg(b, n, cx + cos(a1) * r, cy + sin(a1) * r * ry, 0, cx + cos(a2) * r, cy + sin(a2) * r * ry, 0); } return n; };
+
+  /* 0. five parts of a life */
+  const CL = [[-2.3, 1.5, .1], [1.7, 2.1, .3], [-.1, -.2, .5], [2.5, -1.1, .62], [-1.7, -2.1, .96]];
+  const s0 = {
+    name: "Five parts of a life",
+    caption: "Thoughts, feelings, control, identity, and recovery: five parts of one life, held together. Nothing here is a body.",
+    view: { rx: .1, spin: .05 },
+    lineCap: 5 + 5 * 56, lineOpacity: .4,
+    hi: -1, w: 0,
+    lines(b) {
+      let n = 0;
+      for (let k = 0; k < 5; k++) { const a = CL[k], c = CL[(k + 1) % 5]; n = seg(b, n, a[0], a[1], 0, c[0], c[1], 0); }
+      for (let k = 0; k < 5; k++) n = circle(b, n, CL[k][0], CL[k][1], .92 * (1 + .05 * sin(this.t * .6 + k)), 56);
+      return n;
+    },
+    frame(t, c, dt) { const h = hk("home:"); if (h !== null) this.hi = +h; this.w = ease(this.w, h !== null ? 1 : 0, dt, 5); this.t = t; },
+    at(i, o) {
+      const t = this.t;
+      if (R3[i] > .84) {
+        const k = Math.floor(R1[i] * 5), a = CL[k], b = CL[(k + 1) % 5], u = fr(R2[i] + t * .03 * (1 + R0[i]));
+        o.x = lerp(a[0], b[0], u) + G0[i] * .04; o.y = lerp(a[1], b[1], u) + G1[i] * .04; o.z = G2[i] * .05; o.c = .5; o.a = .42; o.s = .7; return;
+      }
+      const k = Math.floor(R0[i] * 5), cl = CL[k], r = .85 * Math.cbrt(R1[i]);
+      const br = 1 + .05 * sin(t * .6 + k);
+      o.x = cl[0] + FX[i] * r * br + sin(t * .5 + R2[i] * 40) * .03; o.y = cl[1] + FY[i] * r * br; o.z = FZ[i] * r * br;
+      o.c = cl[2];
+      if (this.w > .02) { if (k === this.hi) { o.h = this.w * .5; o.s = 1.15; } else o.a = 1 - this.w * .55; }
+    }
+  };
+
+  /* 1. eight different forms, equal weight */
+  const SP = [[-2.6, 1.55], [-.9, 1.55], [.9, 1.55], [2.6, 1.55], [-2.6, -1.55], [-.9, -1.55], [.9, -1.55], [2.6, -1.55]];
+  const shape = (k, u, v, g0, g1, t) => {
+    switch (k) {
+      case 0: { const a = u * TAU + t * .15; return [cos(a) * .72 + g0 * .02, sin(a) * .72 + g1 * .02]; }
+      case 1: { const r = .72 * Math.sqrt(u), a = v * TAU; return [cos(a) * r, sin(a) * r]; }
+      case 2: { const e = Math.floor(u * 3), f = fr(u * 3), A = [90, 210, 330].map(d => (d + t * 4) * PI / 180); const a = A[e], b = A[(e + 1) % 3]; return [lerp(cos(a), cos(b), f) * .8 + g0 * .02, lerp(sin(a), sin(b), f) * .8 + g1 * .02]; }
+      case 3: return [(u - .5) * 1.6, (v - .5) * .3];
+      case 4: return [g0 * .38, g1 * .38];
+      case 5: { const th = u * 3.3 * PI, r = .06 + th * .075, a = th + t * .2; return [cos(a) * r, sin(a) * r]; }
+      case 6: { const a = (u - .5) * TAU * .68 + PI, r = .75 + (v - .5) * .12; return [cos(a) * r + .2, sin(a) * r]; }
+      default: { const i = Math.floor(u * 5), j = Math.floor(v * 5); return [(i - 2) * .34 + g0 * .02, (j - 2) * .34 + g1 * .02]; }
+    }
+  };
+  const s1 = {
+    name: "Not one single picture",
+    caption: "Eight different forms. Every one is drawn with the same number of points and the same brightness: same seriousness.",
+    view: { rx: 0, spin: 0 },
+    pulse: 0,
+    frame(t, c, dt) { this.pulse = ease(this.pulse, hk("types:") !== null ? 1 : 0, dt, 5); this.t = t; },
+    at(i, o) {
+      const k = Math.floor(R0[i] * 8), uu = fr(R1[i] * 7.31 + k * .37), vv = R2[i];
+      const p = shape(k, R1[i], vv, G0[i], G1[i], this.t), c = SP[k];
+      o.x = c[0] + p[0]; o.y = c[1] + p[1]; o.z = G2[i] * .05; o.c = .5; o.a = .95; o.s = 1;
+      o.h = this.pulse * .3 * (.5 + .5 * sin(this.t * 3));
+    }
+  };
+
+  /* 2. the loop: distress, rules, behavior, relief, shame */
+  const s2 = {
+    name: "The loop",
+    caption: "Five steps travelling one ring. Relief arrives, and so does shame, and the ring begins again.",
+    view: { rx: .15, spin: 0 },
+    lineCap: 3 * 120, lineOpacity: .45,
+    spd: .35, open: 0, hi: -1, w: 0,
+    lines(b) {
+      let n = 0; const R = lerp(2.3, 2.9, this.open);
+      for (let k = 0; k < 3; k++) n = circle(b, n, 0, 0, R + (k - 1) * lerp(.03, .16, this.open), 120, .85);
+      return n;
+    },
+    frame(t, c, dt) {
+      const h = hk("loop:");
+      this.open = ease(this.open, h === "goal" ? 1 : 0, dt, 2.4);
+      this.spd = ease(this.spd, h === "goal" ? .1 : .35, dt, 3);
+      if (h !== null && h !== "goal") this.hi = +h;
+      this.w = ease(this.w, (h !== null && h !== "goal") ? 1 : 0, dt, 5);
+      this.ph = (this.ph || 0) + dt * this.spd * (c.calm ? .25 : 1); this.t = t;
+    },
+    at(i, o) {
+      const open = this.open, R = lerp(2.3, 2.9, open);
+      const node = R3[i] < .4 ? Math.floor(R2[i] * 5) : -1;
+      let a;
+      if (node >= 0) a = -PI / 2 + node * TAU / 5 + this.ph + G0[i] * .16;
+      else a = R0[i] * TAU;
+      const r = R + G1[i] * lerp(.05, .2, open) + (node >= 0 ? G2[i] * .1 : 0);
+      o.x = cos(a) * r; o.y = sin(a) * r * .85; o.z = G2[i] * .08;
+      o.c = lerp(node >= 0 ? .12 + node * .06 : .38, .92, open); o.a = node >= 0 ? 1 : .7; o.s = node >= 0 ? 1.1 : .85;
+      if (node === 3) o.c = lerp(.7, .92, open);
+      if (this.w > .02 && node >= 0) { if (node === this.hi) { o.h = this.w * .7; o.s = 1.4; } else o.a = 1 - this.w * .5; }
+    }
+  };
+
+  /* 3. what is taking over */
+  const s3 = {
+    name: "What is taking over",
+    caption: "The dense mass is the disorder. The scattered points are the rest of a life: school, work, friends, family. Watch the space narrow.",
+    view: { rx: .1, spin: .06 },
+    lineCap: 2 * 96, lineOpacity: .45,
+    grow: .3,
+    lines(b) { const g = this.grow; let n = circle(b, 0, 0, 0, .55 + 1.55 * g, 96); return circle(b, n, 0, 0, 3.0 * (1 - .28 * g), 96, .9); },
+    frame(t, c, dt) { const h = hk("q:"); this.grow = ease(this.grow, h === null ? .3 : (+h + 1) / 4 * .95, dt, 2.4); this.t = t; },
+    at(i, o) {
+      const t = this.t, g = this.grow;
+      if (R3[i] < .36) {
+        const r = (.55 + 1.55 * g) * Math.cbrt(R0[i]);
+        o.x = FX[i] * r + sin(t * 2 + R1[i] * 60) * .05; o.y = FY[i] * r; o.z = FZ[i] * r;
+        o.c = .08 + R2[i] * .08; o.s = 1.05; o.a = 1; return;
+      }
+      const r = (3.0 + R0[i] * 1.6) * (1 - .28 * g);
+      o.x = FX[i] * r + sin(t * .4 + R1[i] * 30) * .06; o.y = FY[i] * r * .9; o.z = FZ[i] * r;
+      o.c = .62 + R2[i] * .3; o.a = 1 - .5 * g; o.s = 1 - .2 * g;
+    }
+  };
+
+  /* 4. four strands, one rope */
+  const s4 = {
+    name: "Four strands, one rope",
+    caption: "Therapy, medical care, nutrition support, and community, twisting into one rope that can carry weight.",
+    view: { rx: 0, spin: 0 },
+    lineCap: 4 * 160, lineOpacity: .5,
+    hi: -1, w: 0,
+    lines(b) {
+      let n = 0; const t = this.t;
+      for (let k = 0; k < 4; k++) for (let j = 0; j < 160; j++) {
+        const y1 = -3.1 + j / 160 * 6.2, y2 = -3.1 + (j + 1) / 160 * 6.2, a1 = y1 * 1.15 + k * TAU / 4 + t * .22, a2 = y2 * 1.15 + k * TAU / 4 + t * .22;
+        n = seg(b, n, cos(a1) * .85, y1, sin(a1) * .85, cos(a2) * .85, y2, sin(a2) * .85);
+      }
+      return n;
+    },
+    frame(t, c, dt) { const h = hk("path:"); if (h !== null) this.hi = +h; this.w = ease(this.w, h !== null ? 1 : 0, dt, 5); this.t = t; },
+    at(i, o) {
+      const t = this.t;
+      if (R3[i] > .92) { o.x = G0[i] * .12; o.y = (R1[i] - .5) * 6.2; o.z = G1[i] * .12; o.c = .95; o.a = .6; o.s = .8; return; }
+      const k = Math.floor(R0[i] * 4), y = (R1[i] - .5) * 6.2;
+      const a = y * 1.15 + k * TAU / 4 + t * .22, r = .85 + G0[i] * .04;
+      o.x = cos(a) * r; o.y = y; o.z = sin(a) * r;
+      o.c = .25 + k * .22; o.s = 1;
+      if (this.w > .02) { if (k === this.hi) { o.h = this.w * .55; o.s = 1.2; } else o.a = 1 - this.w * .5; }
+    }
+  };
+
+  /* 5. a loop that opens into a larger spiral */
+  const s5 = {
+    name: "A life larger than the disorder",
+    caption: "The tight loop opens into a widening spiral. Progress is uneven, so the line wavers, but it keeps growing outward.",
+    view: { rx: .18, spin: .04 },
+    lineCap: 3 * 300, lineOpacity: .45,
+    frame(t) { this.t = t; },
+    lines(b) {
+      let n = 0; const t = this.t, M = 7 * PI;
+      for (let arm = 0; arm < 3; arm++) for (let j = 0; j < 300; j++) {
+        const P = th => { const r = .28 + th * .19 + sin(th * 1.3 + t * .4) * .13, a = th + arm * TAU / 3 + t * .1; return [cos(a) * r, sin(a) * r * .88, sin(th * .5) * .2]; };
+        const p = P(j / 300 * M), q = P((j + 1) / 300 * M);
+        n = seg(b, n, p[0], p[1], p[2], q[0], q[1], q[2]);
+      }
+      return n;
+    },
+    at(i, o) {
+      const t = this.t, arm = Math.floor(R2[i] * 3), th = R1[i] * 7 * PI;
+      const r = .28 + th * .19 + sin(th * 1.3 + t * .4) * .13 + G0[i] * .05;
+      const a = th + arm * TAU / 3 + t * .1;
+      o.x = cos(a) * r; o.y = sin(a) * r * .88; o.z = G1[i] * .1 + sin(th * .5) * .2;
+      o.c = clamp(.1 + .9 * (th / (7 * PI)) + G2[i] * .02); o.s = .9 + (th / (7 * PI)) * .35;
+    }
+  };
+
+  return [s0, s1, s2, s3, s4, s5];
+}
+;
+boot(THREE, SITE, makeScenes);
+</script>
+</body>
+</html>
